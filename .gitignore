@@ -1,0 +1,23 @@
+# Данные и модели (большие файлы)
+data/**
+!data/**/
+!data/**/.gitkeep
+models/*
+!models/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+.env
+
+# MLflow / CatBoost артефакты
+mlruns/
+catboost_info/
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

@@ -1,0 +1,14 @@
+numpy
+pandas
+pyarrow
+scikit-learn
+statsmodels
+lightgbm
+catboost
+optbinning
+optuna
+shap
+matplotlib
+seaborn
+jupyterlab
+ipykernel
