@@ -214,6 +214,22 @@ NEW_IN_2016 = [
     "total_bal_il", "total_cu_tl",
 ]
 
+CATEGORICAL = ["purpose", "home_ownership", "verification_status", "emp_length",
+               "initial_list_status", "disbursement_method"]
+
+
+def model_features(include_2016: bool = True) -> list:
+    """Candidate features for individual applications, plus derived credit history length.
+
+    Notebook 02 chose the feature set with the 2016 bureau fields (`include_2016=True`).
+    """
+    excluded = set(JOINT_ONLY) | {"application_type", "earliest_cr_line"}
+    if not include_2016:
+        excluded |= set(NEW_IN_2016)
+    base = [c for c in CANDIDATE if c not in excluded and c not in NEW_IN_2016]
+    return base + ["credit_hist_months"] + (NEW_IN_2016 if include_2016 else [])
+
+
 GROUPS = {
     "CANDIDATE": CANDIDATE,
     "LENDER_SCORE": LENDER_SCORE,

@@ -1,0 +1,79 @@
+feature,dtype,n_bins,iv,gini,fitted_on,gini_train,gini_test,gini_drop,periods,psi,rank_corr,decision,reason,vif
+loan_amnt,numerical,6,0.015026202645268657,0.06053007009810596,all train,0.06053,0.05141,0.00912,early vs late,0.01519,0.14286,drop,weak: IV < 0.02,
+purpose,categorical,4,0.04131795841889625,0.09852085896474383,all train,0.09852,0.09887,-0.00035,early vs late,0.02428,1.0,keep,,1.03656
+initial_list_status,categorical,2,0.01106363990635835,0.05198170207452091,all train,0.05198,0.06387,-0.01189,early vs late,0.40807,1.0,drop,weak: IV < 0.02,
+disbursement_method,categorical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+emp_length,categorical,7,0.02432649891573239,0.0817809646026425,all train,0.05846,0.06302,-0.00456,early vs late,0.00537,0.7381,keep,,1.0986
+home_ownership,categorical,3,0.03544333542124574,0.09688130988285959,all train,0.09688,0.09069,0.00619,early vs late,0.00844,1.0,keep,,1.79569
+annual_inc,numerical,12,0.039938364453339224,0.11059312688701728,all train,0.11059,0.10839,0.00221,early vs late,0.00834,0.96503,keep,,1.86859
+verification_status,categorical,3,0.06913386817409381,0.14039708412328333,all train,0.1404,0.14479,-0.00439,early vs late,0.04843,1.0,keep,,1.12057
+dti,numerical,10,0.0767458064529668,0.15382084982705535,all train,0.15382,0.14209,0.01174,early vs late,0.02201,1.0,keep,,1.39461
+fico_range_low,numerical,12,0.10040300594084323,0.16858531875573157,all train,0.16859,0.16647,0.00211,early vs late,0.00468,0.97902,keep,,1.62844
+fico_range_high,numerical,12,0.10040300594084323,0.16858531875573157,all train,0.16859,0.16647,0.00211,early vs late,0.00468,0.97902,drop,correlated with fico_range_low (r = 1.00),
+delinq_2yrs,numerical,3,0.0010006864728446696,0.011215953869462836,all train,0.01122,0.01664,-0.00543,early vs late,0.0014,1.0,drop,weak: IV < 0.02,
+inq_last_6mths,numerical,3,0.05670004630688071,0.12209182879584168,all train,0.12209,0.12062,0.00147,early vs late,0.04055,1.0,keep,,1.89497
+mths_since_last_delinq,numerical,5,0.001511125318086497,0.015871331433128244,all train,0.01587,0.01736,-0.00149,early vs late,0.00643,0.37143,drop,weak: IV < 0.02,
+mths_since_last_record,numerical,3,0.0035245999014870046,0.02149675803204998,all train,0.0215,0.01685,0.00465,early vs late,0.01735,0.0,drop,weak: IV < 0.02,
+mths_since_last_major_derog,numerical,3,0.0019736400464033053,0.01991124529684829,all train,0.01991,0.02288,-0.00297,early vs late,0.0028,1.0,drop,weak: IV < 0.02,
+open_acc,numerical,3,7.585257134237776e-05,0.003797985260378889,all train,0.0038,-0.00699,0.01079,early vs late,0.00862,-1.0,drop,weak: IV < 0.02,
+pub_rec,numerical,2,0.0025717778377855084,0.020112931721154137,all train,0.02011,0.01459,0.00553,early vs late,0.00235,-1.0,drop,weak: IV < 0.02,
+pub_rec_bankruptcies,numerical,2,0.002021759754251095,0.015445314676574173,all train,0.01545,0.01065,0.0048,early vs late,0.00012,-1.0,drop,weak: IV < 0.02,
+tax_liens,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+revol_bal,numerical,9,0.016002076312797868,0.06329531248245979,all train,0.0633,0.05529,0.008,early vs late,0.01358,0.71667,drop,weak: IV < 0.02,
+revol_util,numerical,7,0.011416047560857857,0.05464329245639188,all train,0.05439,0.04525,0.00914,early vs late,0.04456,0.96429,drop,weak: IV < 0.02,
+total_acc,numerical,8,0.0044089546531791025,0.03509878832566593,all train,0.0351,0.03092,0.00418,early vs late,0.01661,0.54762,drop,weak: IV < 0.02,
+collections_12_mths_ex_med,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+acc_now_delinq,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+tot_coll_amt,numerical,2,0.0006077394728397976,0.009260922084934453,all train,0.00926,0.00622,0.00304,early vs late,0.0102,1.0,drop,weak: IV < 0.02,
+tot_cur_bal,numerical,8,0.0349095994954452,0.0938717937117185,all train,0.09387,0.08184,0.01203,early vs late,0.0022,0.97619,drop,correlated with tot_hi_cred_lim (r = 0.96),
+total_rev_hi_lim,numerical,10,0.036578863907125635,0.10428004823390646,all train,0.10428,0.0963,0.00798,early vs late,0.01665,0.96364,keep,,2.87706
+acc_open_past_24mths,numerical,8,0.10330527546916549,0.18162111670716907,all train,0.18162,0.1799,0.00172,early vs late,0.02716,1.0,keep,,2.50315
+avg_cur_bal,numerical,9,0.03870625794625989,0.09610339373036003,all train,0.09606,0.08841,0.00766,early vs late,0.00111,0.95,drop,correlated with tot_hi_cred_lim (r = 0.84),
+bc_open_to_buy,numerical,12,0.05477181440169572,0.12550042010526663,all train,0.12298,0.113,0.00998,early vs late,0.03972,0.94505,keep,,3.66587
+bc_util,numerical,10,0.021917113177538177,0.074909478812072,all train,0.07407,0.06697,0.00709,early vs late,0.04348,0.94545,drop,correlated with percent_bc_gt_75 (r = 0.75),
+chargeoff_within_12_mths,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+delinq_amnt,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+mo_sin_old_il_acct,numerical,7,0.02561774231726639,0.08375889007911563,all train,0.0836,0.08643,-0.00283,early vs late,0.01289,0.80952,keep,,1.16061
+mo_sin_old_rev_tl_op,numerical,9,0.036313000741874074,0.10434394259296242,all train,0.10434,0.10559,-0.00125,early vs late,0.03337,0.91667,keep,,1.38756
+mo_sin_rcnt_rev_tl_op,numerical,11,0.0350119109032282,0.10037112051791397,all train,0.10037,0.08539,0.01498,early vs late,0.00152,0.97273,drop,correlated with mo_sin_rcnt_tl (r = 0.71),
+mo_sin_rcnt_tl,numerical,12,0.06207984741522762,0.1380866312799517,all train,0.13809,0.1355,0.00259,early vs late,0.004,0.99301,keep,,2.26377
+mort_acc,numerical,6,0.034054008195215604,0.09952515445584931,all train,0.09953,0.09081,0.00872,early vs late,0.02555,0.94286,keep,,2.17983
+mths_since_recent_bc,numerical,12,0.035709956086877326,0.10403534077543874,all train,0.10098,0.09586,0.00512,early vs late,0.0105,0.91608,keep,,1.76581
+mths_since_recent_bc_dlq,numerical,4,0.0012302598892788862,0.012930838584021442,all train,0.01293,0.00956,0.00337,early vs late,0.00316,0.8,drop,weak: IV < 0.02,
+mths_since_recent_inq,numerical,9,0.0705385570349754,0.15106628316560955,all train,0.12685,0.12083,0.00603,early vs late,0.00362,0.98788,keep,,1.95346
+mths_since_recent_revol_delinq,numerical,5,0.0009384147121740448,0.013616282819767234,all train,0.01362,0.00872,0.00489,early vs late,0.00295,0.54286,drop,weak: IV < 0.02,
+num_accts_ever_120_pd,numerical,2,0.000849378310643514,0.012669028405187244,all train,0.01267,0.01787,-0.0052,early vs late,0.00338,1.0,drop,weak: IV < 0.02,
+num_actv_bc_tl,numerical,3,0.00246058494969532,0.01826671161482818,all train,0.01827,0.01618,0.00209,early vs late,0.0065,0.5,drop,weak: IV < 0.02,
+num_actv_rev_tl,numerical,4,0.0018782936038110804,0.01674225302286836,all train,0.01674,0.01256,0.00419,early vs late,0.00808,-0.4,drop,weak: IV < 0.02,
+num_bc_sats,numerical,4,0.003780602492198946,0.02441096446803126,all train,0.02441,0.01582,0.00859,early vs late,0.005,0.8,drop,weak: IV < 0.02,
+num_bc_tl,numerical,7,0.008053978602376301,0.04192580770419063,all train,0.04193,0.03424,0.00768,early vs late,0.0595,0.64286,drop,weak: IV < 0.02,
+num_il_tl,numerical,4,0.0002847271147385807,0.008606094305253609,all train,0.00861,0.01494,-0.00634,early vs late,0.00062,-0.2,drop,weak: IV < 0.02,
+num_op_rev_tl,numerical,2,0.0007888805436857642,0.008798632025999176,all train,0.0088,0.00661,0.00219,early vs late,0.00702,-1.0,drop,weak: IV < 0.02,
+num_rev_accts,numerical,6,0.004674919557347907,0.033212754787579346,all train,0.03321,0.02659,0.00662,early vs late,0.03797,0.77143,drop,weak: IV < 0.02,
+num_rev_tl_bal_gt_0,numerical,4,0.0013901551485961967,0.01559453278866163,all train,0.01559,0.01018,0.00541,early vs late,0.00591,0.2,drop,weak: IV < 0.02,
+num_sats,numerical,3,7.656657566580003e-05,0.004187549297715809,all train,0.00419,-0.00719,0.01138,early vs late,0.00821,-1.0,drop,weak: IV < 0.02,
+num_tl_120dpd_2m,numerical,1,0.0029837409598977003,0.011716599152901797,all train,0.01172,0.00511,0.00661,early vs late,0.00667,-1.0,drop,weak: IV < 0.02,
+num_tl_30dpd,numerical,1,0.0,0,all train,0.0,0.0,0.0,early vs late,0.0,,drop,weak: IV < 0.02,
+num_tl_90g_dpd_24m,numerical,2,0.0009456956054149175,0.0075789719256550425,all train,0.00758,0.007,0.00058,early vs late,1e-05,1.0,drop,weak: IV < 0.02,
+num_tl_op_past_12m,numerical,6,0.09250339408689134,0.17076910810766632,all train,0.17077,0.1728,-0.00203,early vs late,0.03874,1.0,drop,correlated with acc_open_past_24mths (r = 0.76),
+pct_tl_nvr_dlq,numerical,4,0.0008397146284240395,0.010064233138733503,all train,0.01002,0.00632,0.00371,early vs late,0.00781,0.8,drop,weak: IV < 0.02,
+percent_bc_gt_75,numerical,6,0.02216019304684394,0.08374703068457157,all train,0.08118,0.0738,0.00738,early vs late,0.06138,1.0,keep,,2.13747
+tot_hi_cred_lim,numerical,9,0.04433934072684406,0.11228426443236006,all train,0.11228,0.10263,0.00966,early vs late,0.0112,1.0,keep,,2.77408
+total_bal_ex_mort,numerical,3,0.001223504236864984,0.010672684744063021,all train,0.01067,-0.00219,0.01286,early vs late,0.01046,-0.5,drop,weak: IV < 0.02,
+total_bc_limit,numerical,14,0.045444236956867494,0.1184696513651935,all train,0.11847,0.11076,0.00771,early vs late,0.01485,0.96923,drop,correlated with bc_open_to_buy (r = 0.76),
+total_il_high_credit_limit,numerical,3,0.0010870740712352624,0.010610223516671402,all train,0.01061,-0.00083,0.01144,early vs late,0.0127,1.0,drop,weak: IV < 0.02,
+credit_hist_months,numerical,10,0.02526441131838771,0.08934661510360276,all train,0.08935,0.09412,-0.00477,early vs late,0.01042,0.89091,drop,correlated with mo_sin_old_rev_tl_op (r = 0.83),
+all_util,numerical,10,0.0464610937829961,0.12147598288201267,2016+ loans,0.12132,0.12968,-0.00836,h1_2016 vs h2_2016,0.00061,0.96364,keep,,2.50696
+il_util,numerical,7,0.051717151364391326,0.12678476979567055,2016+ loans,0.12459,0.13648,-0.01188,h1_2016 vs h2_2016,0.00159,0.88095,keep,,1.87886
+inq_fi,numerical,5,0.04135469417194694,0.10513163024729966,2016+ loans,0.10494,0.1286,-0.02366,h1_2016 vs h2_2016,0.00066,1.0,keep,,1.45554
+inq_last_12m,numerical,6,0.06890657449493322,0.14665781813132905,2016+ loans,0.14646,0.15612,-0.00966,h1_2016 vs h2_2016,0.00043,1.0,keep,,2.34397
+max_bal_bc,numerical,8,0.018253527330065366,0.06876465820207767,2016+ loans,0.0686,0.07045,-0.00185,h1_2016 vs h2_2016,0.00598,0.97619,drop,weak: IV < 0.02,
+mths_since_rcnt_il,numerical,9,0.08791410339729332,0.1684914543121212,2016+ loans,0.16849,0.16341,0.00508,h1_2016 vs h2_2016,0.01887,0.98788,keep,,1.94846
+open_acc_6m,numerical,4,0.05433456695280224,0.12393914611060408,2016+ loans,0.1237,0.12378,-8e-05,h1_2016 vs h2_2016,0.00057,1.0,drop,correlated with mo_sin_rcnt_tl (r = 0.72),
+open_act_il,numerical,4,0.007276735445278951,0.045124617706870596,2016+ loans,0.04485,0.05356,-0.00871,h1_2016 vs h2_2016,0.00122,1.0,drop,weak: IV < 0.02,
+open_il_12m,numerical,4,0.08470879011482478,0.15240912460899714,2016+ loans,0.15223,0.15565,-0.00342,h1_2016 vs h2_2016,0.00234,1.0,drop,correlated with mths_since_rcnt_il (r = 0.82),
+open_il_24m,numerical,6,0.0764055504940554,0.15257188091412743,2016+ loans,0.15241,0.15208,0.00034,h1_2016 vs h2_2016,0.0023,1.0,drop,correlated with mths_since_rcnt_il (r = 0.71),
+open_rv_12m,numerical,5,0.02868508786113928,0.09308992842915254,2016+ loans,0.09294,0.10952,-0.01658,h1_2016 vs h2_2016,0.00022,1.0,keep,,2.62934
+open_rv_24m,numerical,7,0.05370982323990288,0.13033337376950094,2016+ loans,0.13014,0.13388,-0.00374,h1_2016 vs h2_2016,0.00053,1.0,drop,correlated with acc_open_past_24mths (r = 0.81),
+total_bal_il,numerical,5,0.009212792687097153,0.04690050309051719,2016+ loans,0.04663,0.05079,-0.00416,h1_2016 vs h2_2016,0.00071,0.4,drop,weak: IV < 0.02,
+total_cu_tl,numerical,5,0.002261900087222914,0.019660745303599292,2016+ loans,0.01954,0.02182,-0.00229,h1_2016 vs h2_2016,0.00084,0.7,drop,weak: IV < 0.02,

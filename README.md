@@ -116,6 +116,14 @@ Source: Kaggle, *Lending Club* dataset (wordsforthewise), file `accepted_2007_to
 | OOT | 2017-01 … 2017-12 | 296,484 | 4.04% |
 - Loans from 2007–2009 are not used: there are few of them, and they were issued during the crisis
 
+### Feature selection (scorecard)
+Optimal binning on train (≥ 5% of loans per bin, monotonic risk trend, missing as its own
+bin), then a documented funnel: IV < 0.02 → PSI / risk-order stability → correlation > 0.7 →
+VIF > 5. **25 of 78 features** are kept; the decision and reason for every candidate are in
+`reports/tables/03_feature_selection.csv`. The 14 bureau fields that only exist from 2016 are
+binned on 2016 loans and get a neutral WoE for older loans, so that "missing" does not encode
+the issue period.
+
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop
 - **Stability:** PSI of the score and features, Gini by quarter
