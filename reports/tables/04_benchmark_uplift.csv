@@ -1,0 +1,5 @@
+model,gini_test,weight_benchmark,weight_model,p_value_model,uplift_vs_benchmark
+Benchmark alone,0.41698,,,,0.0
+Benchmark + Scorecard (logistic WoE),0.43463,0.79378,0.47881,0.0,0.01765
+Benchmark + LightGBM,0.47245,0.54421,0.74119,0.0,0.05547
+Benchmark + CatBoost,0.46888,0.57012,0.72608,0.0,0.0519

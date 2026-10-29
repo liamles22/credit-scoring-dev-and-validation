@@ -1,12 +1,18 @@
 """Discrimination and stability metrics used in development and validation."""
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve
 
 
 def gini(y, score) -> float:
     """Gini = 2 * AUC - 1. Positive when a higher score means a higher default risk."""
     return 2 * roc_auc_score(y, score) - 1
+
+
+def ks(y, score) -> float:
+    """Kolmogorov-Smirnov statistic: max distance between the score distributions of bads and goods."""
+    fpr, tpr, _ = roc_curve(y, score)
+    return float(np.max(tpr - fpr))
 
 
 def psi(expected, actual, eps: float = 1e-4) -> float:

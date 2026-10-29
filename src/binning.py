@@ -60,6 +60,19 @@ class ScorecardBinning:
             out = -out
         return out
 
+    def table(self, name) -> pd.DataFrame:
+        """Binning table with readable labels and the project WoE sign (higher = riskier)."""
+        ob = self.binning(name)
+        bt = ob.binning_table.build().drop(index="Totals")
+        if ob.dtype == "categorical":
+            labels = [", ".join(map(str, list(s))) for s in ob.splits] + ["Special", "Missing"]
+            bt["Bin"] = labels[:len(bt)]
+        bt["Bin"] = bt["Bin"].astype(str)
+        bt["WoE"] = -bt["WoE"]
+        if name in self.late:
+            bt.loc[len(bt)] = {"Bin": "Not reported", "WoE": 0.0}
+        return bt.reset_index(drop=True)
+
     def summary(self) -> pd.DataFrame:
         s = [self.bp_early_.summary()]
         if self.bp_late_ is not None:

@@ -74,7 +74,7 @@ and never become features: `assert_no_leakage` checks this before training.
 - Joint applications (7.5% of 2017 loans) are excluded: their fields only exist from late 2015.
 
 ### Success criteria
-- OOT Gini ≥ 0.35 for logistic regression; boosting must add enough uplift to justify the loss of interpretability
+- OOT Gini of the logistic regression **above the benchmark**: Lending Club's own sub-grade on the same OOT loans (Gini ≈ 0.40); boosting must add enough uplift to justify the loss of interpretability
 - Gini drop train → OOT ≤ 5 pp (≤ 10% relative)
 - Score PSI train → OOT < 0.1 (stable); 0.1–0.25 acceptable with justification
 - WoE signs and monotonicity in the logistic regression agree with business logic
@@ -123,6 +123,19 @@ VIF > 5. **25 of 78 features** are kept; the decision and reason for every candi
 `reports/tables/03_feature_selection.csv`. The 14 bureau fields that only exist from 2016 are
 binned on 2016 loans and get a neutral WoE for older loans, so that "missing" does not encode
 the issue period.
+
+### Models (test sample, before OOT)
+| Model | Gini test |
+|---|---|
+| Scorecard: logistic regression on WoE, 21 features | 0.356 |
+| LightGBM / LightGBM monotone | 0.443 / 0.443 |
+| CatBoost / CatBoost monotone | 0.438 / 0.438 |
+| Benchmark: Lending Club sub-grade | 0.417 |
+
+Boosting beats the lender's own grade; the scorecard does not, because the grade uses
+information that is not in the public data. Monotone constraints cost no accuracy. Every
+model still **adds** information to the grade: combined with it, LightGBM lifts Gini from
+0.417 to 0.472 and the scorecard to 0.435. The final verdict is given on OOT (2017) in Part 2.
 
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop

@@ -1,0 +1,8 @@
+model,features,gini_train,gini_test,ks_test,gini_drop
+Scorecard (logistic WoE),21,0.36329,0.35564,0.25891,0.00766
+"Logistic WoE, all 70 features (reference)",70,0.38564,0.37534,0.2737,0.01031
+LightGBM,78,0.58578,0.44322,0.32356,0.14256
+LightGBM monotone,78,0.58259,0.44298,0.32424,0.13962
+CatBoost,78,0.53412,0.43824,0.32285,0.09588
+CatBoost monotone,78,0.51742,0.43793,0.32465,0.07948
+Benchmark: Lending Club sub-grade,1,0.41354,0.41698,0.3033,-0.00344
