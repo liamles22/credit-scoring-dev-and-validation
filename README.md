@@ -137,6 +137,19 @@ information that is not in the public data. Monotone constraints cost no accurac
 model still **adds** information to the grade: combined with it, LightGBM lifts Gini from
 0.417 to 0.472 and the scorecard to 0.435. The final verdict is given on OOT (2017) in Part 2.
 
+### Part 2: independent validation on OOT 2017
+| Model | Gini OOT | vs benchmark | Observed / predicted PD | Verdict |
+|---|---|---|---|---|
+| Scorecard | 0.340 | −0.071 | 1.19 | **Not approved** as primary score |
+| **LightGBM monotone** | **0.430** | **+0.019** | 1.05 | **Approved with conditions** (champion) |
+| CatBoost monotone | 0.426 | +0.015 | 0.99 | Approved with conditions (challenger) |
+| Benchmark: sub-grade | 0.411 | — | — | — |
+
+Ranking holds on new borrowers (Gini drop test → OOT ≤ 1.8 pp, score PSI ≤ 0.03), but PD
+is under-predicted as default rates rose in 2017: recalibration is required before any PD use.
+9 findings (2 High, 5 Medium, 2 Low) with evidence and recommendations are in
+`reports/tables/05_findings.csv`, together with a monitoring plan in notebook 05.
+
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop
 - **Stability:** PSI of the score and features, Gini by quarter

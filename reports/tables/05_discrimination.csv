@@ -1,0 +1,7 @@
+model,gini_test,gini_oot,ci_low,ci_high,ks_oot,drop_test_to_oot,drop_ok
+Scorecard,0.35564,0.33959,0.32987,0.34928,0.24661,0.01605,True
+LightGBM,0.44322,0.42812,0.41929,0.43675,0.30947,0.0151,True
+LightGBM monotone,0.44298,0.42976,0.42104,0.43868,0.31258,0.01322,True
+CatBoost,0.43824,0.4203,0.41097,0.42957,0.30579,0.01794,True
+CatBoost monotone,0.43793,0.42552,0.41686,0.4343,0.30922,0.01242,True
+Benchmark: sub-grade,0.41698,0.41068,0.40154,0.4203,0.30095,0.0063,True

@@ -28,6 +28,32 @@ def psi(expected, actual, eps: float = 1e-4) -> float:
     return float(((a - e) * np.log(a / e)).sum())
 
 
+def calibration_table(y, pd_, n_bins: int = 10) -> pd.DataFrame:
+    """Predicted vs observed default rate by bucket of predicted PD, with a binomial test.
+
+    `binomial_p` is the two-sided p-value of observing the bucket's defaults if the true
+    default rate were the mean predicted PD of the bucket.
+    """
+    from scipy.stats import binomtest
+
+    d = pd.DataFrame({"y": np.asarray(y), "pd": np.asarray(pd_)})
+    d["bucket"] = pd.qcut(d["pd"].rank(method="first"), n_bins, labels=False) + 1
+    t = d.groupby("bucket").agg(loans=("y", "size"), defaults=("y", "sum"),
+                                mean_pd=("pd", "mean"), default_rate=("y", "mean"))
+    t["binomial_p"] = [binomtest(int(r.defaults), int(r.loans), r.mean_pd).pvalue for r in t.itertuples()]
+    return t
+
+
+def hosmer_lemeshow(y, pd_, n_bins: int = 10):
+    """Hosmer-Lemeshow statistic and p-value over buckets of predicted PD."""
+    from scipy.stats import chi2
+
+    t = calibration_table(y, pd_, n_bins)
+    expected = t["loans"] * t["mean_pd"]
+    stat = (((t["defaults"] - expected) ** 2) / (expected * (1 - t["mean_pd"]))).sum()
+    return float(stat), float(chi2.sf(stat, n_bins - 2))
+
+
 def iv(bins, y, eps: float = 1e-4) -> float:
     """Information value of a binned variable: sum over bins of (%bad - %good) * WoE."""
     t = pd.crosstab(pd.Series(bins).to_numpy(), pd.Series(y).to_numpy())

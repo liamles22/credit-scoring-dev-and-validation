@@ -1,0 +1,6 @@
+model,gini_minus_benchmark,ci_low,ci_high,significant
+Scorecard,-0.07063,-0.08116,-0.06092,True
+LightGBM,0.01772,0.00864,0.02709,True
+LightGBM monotone,0.01934,0.01057,0.02786,True
+CatBoost,0.0099,0.00144,0.01844,True
+CatBoost monotone,0.01517,0.0064,0.02334,True

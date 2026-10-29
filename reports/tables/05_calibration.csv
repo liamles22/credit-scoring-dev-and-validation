@@ -1,0 +1,11 @@
+model,sample,mean_pd,default_rate,ratio_observed_to_predicted,deciles_failing_binomial_5pct,hosmer_lemeshow,hl_p_value
+Scorecard,test,0.03692,0.03696,1.00098,0,10.24086,0.24853
+Scorecard,oot,0.03399,0.0404,1.18871,8,493.90447,0.0
+LightGBM,test,0.03679,0.03696,1.00451,1,14.73775,0.06445
+LightGBM,oot,0.03856,0.0404,1.04759,6,51.33559,0.0
+LightGBM monotone,test,0.03679,0.03696,1.00463,1,18.29445,0.01912
+LightGBM monotone,oot,0.03845,0.0404,1.05064,4,57.20738,0.0
+CatBoost,test,0.03668,0.03696,1.00771,1,15.17574,0.05582
+CatBoost,oot,0.03859,0.0404,1.04683,5,73.10176,0.0
+CatBoost monotone,test,0.03867,0.03696,0.95572,7,79.65861,0.0
+CatBoost monotone,oot,0.04071,0.0404,0.99244,6,88.34277,0.0

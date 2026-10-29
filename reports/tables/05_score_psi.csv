@@ -1,0 +1,6 @@
+,psi_train_to_test,psi_train_to_oot,status
+Scorecard,3e-05,0.02667,stable
+LightGBM,4e-05,0.00697,stable
+LightGBM monotone,3e-05,0.0056,stable
+CatBoost,7e-05,0.00624,stable
+CatBoost monotone,2e-05,0.00629,stable
