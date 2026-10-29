@@ -31,12 +31,15 @@ Out-of-time year 2017, 296,484 loans never used in development:
   reported, along with the fact that every model still adds information to that grade.
 - **Independent validation:** 9 findings rated High / Medium / Low, a verdict per model and a
   monitoring plan with amber / red triggers.
+- **Remediation loop:** PD under-prediction fixed by recalibrating on the most recent matured
+  cohort (scorecard observed / predicted 1.19 → 1.01 on OOT), re-tested and findings closed.
 
 **Notebooks:** [01 data and target](notebooks/01_data_eda.ipynb) →
 [02 time split](notebooks/02_split.ipynb) →
 [03 binning and feature selection](notebooks/03_features.ipynb) →
 [04 models](notebooks/04_modeling.ipynb) →
-[05 validation](notebooks/05_validation.ipynb)
+[05 validation](notebooks/05_validation.ipynb) →
+[06 remediation](notebooks/06_remediation.ipynb)
 
 ## Problem statement
 
@@ -178,6 +181,10 @@ is under-predicted as default rates rose in 2017: recalibration is required befo
 9 findings (2 High, 5 Medium, 2 Low) with evidence and recommendations are in
 `reports/tables/05_findings.csv`, together with a monitoring plan in notebook 05.
 
+**Remediation (notebook 06).** Recalibration fitted on the 2016 test cohort only, re-tested on
+OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.04 (Gini unchanged).
+F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark) stays open.
+
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop
 - **Stability:** PSI of the score and features, Gini by quarter
@@ -192,7 +199,8 @@ data/
   interim/      # intermediate (parquet)
   processed/    # final samples
 notebooks/      # one notebook per stage
-src/            # reusable code: binning, metrics, PSI
+src/            # reusable code: target, split, binning, metrics, scorecard
+tests/          # unit tests (pytest)
 models/         # saved models
 reports/        # report and figures
 ```
@@ -202,4 +210,14 @@ reports/        # report and figures
 ```bash
 conda activate ml
 pip install -r requirements.txt
+```
+
+## Tests
+
+42 unit tests on small synthetic examples (no data download needed) cover the target
+reconstruction, metrics (Gini, KS, PSI, IV, calibration tests), leakage control, the
+time split, the points scaling and the PD recalibration:
+
+```bash
+python -m pytest
 ```

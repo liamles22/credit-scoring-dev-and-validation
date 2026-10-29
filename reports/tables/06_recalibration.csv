@@ -1,0 +1,13 @@
+model,method,gini,mean_pd,default_rate,obs_to_pred,deciles_failing_binomial,hosmer_lemeshow,hl_p_value
+Scorecard,original,0.33959,0.03399,0.0404,1.18871,8,493.90447,0.0
+Scorecard,intercept shift,0.33959,0.03968,0.0404,1.01805,6,102.5616,0.0
+Scorecard,logistic,0.33959,0.04019,0.0404,1.00533,4,39.82217,0.0
+Scorecard,"intercept shift, whole test (counter-example)",0.33959,0.03402,0.0404,1.18755,8,489.52413,0.0
+LightGBM monotone,original,0.42976,0.03845,0.0404,1.05064,4,57.20738,0.0
+LightGBM monotone,intercept shift,0.42976,0.03902,0.0404,1.03532,3,40.96413,0.0
+LightGBM monotone,logistic,0.42976,0.03931,0.0404,1.02786,5,39.73343,0.0
+LightGBM monotone,"intercept shift, whole test (counter-example)",0.42976,0.03863,0.0404,1.0458,3,51.50432,0.0
+CatBoost monotone,original,0.42552,0.04071,0.0404,0.99244,6,88.34277,0.0
+CatBoost monotone,intercept shift,0.42552,0.03975,0.0404,1.01637,7,92.95146,0.0
+CatBoost monotone,logistic,0.42552,0.03955,0.0404,1.02153,4,57.86772,0.0
+CatBoost monotone,"intercept shift, whole test (counter-example)",0.42552,0.03891,0.0404,1.03831,7,109.33889,0.0
