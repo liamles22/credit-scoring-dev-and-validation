@@ -2,13 +2,41 @@
 
 🇬🇧 English · 🇷🇺 [Русский](README.ru.md)
 
-Building and comparing credit scoring (PD) models on **Lending Club 2007–2018** data:
+A probability-of-default (PD) model for Lending Club consumer loans, **built and then
+independently validated** the way a bank would do it: a 12-month default target,
+an interpretable scorecard against gradient-boosting challengers, and an out-of-time
+test on 2017 loans ending in findings and a verdict.
 
-- **WoE logistic regression**: interpretable baseline model (scorecard)
-- **LightGBM**: challenger
-- **CatBoost**: challenger
+## Key results
 
-Outcome: a comparison of the models on performance, stability and calibration, plus a validation report.
+Out-of-time year 2017, 296,484 loans never used in development:
+
+| Model | Gini | vs Lending Club's own grade | PD calibration (observed / predicted) | Verdict |
+|---|---|---|---|---|
+| **LightGBM, monotone** | **0.430** | **+0.019** (significant) | 1.05 | **Approved with conditions** |
+| CatBoost, monotone | 0.426 | +0.015 (significant) | 0.99 | Approved with conditions (challenger) |
+| WoE logistic scorecard | 0.340 | −0.071 | 1.19 | Not approved as primary score |
+| Lending Club sub-grade (benchmark) | 0.411 | — | — | — |
+
+![Model comparison: Gini on test and on out-of-time 2017](reports/figures/05_discrimination.png)
+
+**What makes this project different**
+- **Bank-standard target:** default = 90+ days past due within 12 months (Basel / CRR Art. 178),
+  reconstructed from payment data and checked against a second method (96.3% agreement).
+- **Leakage control with an audit trail:** each of 151 raw columns is classified with a
+  reason, and every feature matrix is checked before training.
+- **Training window chosen by experiment**, on a separate validation slice, never on the
+  test year.
+- **Honest benchmark:** the scorecard does not beat the lender's own grade, and this is
+  reported, along with the fact that every model still adds information to that grade.
+- **Independent validation:** 9 findings rated High / Medium / Low, a verdict per model and a
+  monitoring plan with amber / red triggers.
+
+**Notebooks:** [01 data and target](notebooks/01_data_eda.ipynb) →
+[02 time split](notebooks/02_split.ipynb) →
+[03 binning and feature selection](notebooks/03_features.ipynb) →
+[04 models](notebooks/04_modeling.ipynb) →
+[05 validation](notebooks/05_validation.ipynb)
 
 ## Problem statement
 
