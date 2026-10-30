@@ -3,7 +3,7 @@
 🇬🇧 English · 🇷🇺 [Русский](README.ru.md)
 
 A probability-of-default (PD) model for Lending Club consumer loans, **built and then
-independently validated** the way a bank would do it: a 12-month default target,
+reviewed in the style of a bank's model validation** (same author, so independence is simulated): a 12-month default target,
 an interpretable scorecard against gradient-boosting challengers, and an out-of-time
 test on 2017 loans ending in findings and a verdict.
 
@@ -29,10 +29,11 @@ Out-of-time year 2017, 296,484 loans never used in development:
   test year.
 - **Honest benchmark:** the scorecard does not beat the lender's own grade, and this is
   reported, along with the fact that every model still adds information to that grade.
-- **Independent validation:** 9 findings rated High / Medium / Low, a verdict per model and a
-  monitoring plan with amber / red triggers.
+- **Validation report:** 12 findings rated High / Medium / Low, including this project's own
+  weaknesses, a recommendation per model, a model card and an EU AI Act gap analysis:
+  [reports/validation_report.md](reports/validation_report.md).
 - **Remediation loop:** PD under-prediction fixed by recalibrating on the most recent matured
-  cohort (scorecard observed / predicted 1.19 → 1.01 on OOT), re-tested and findings closed.
+  cohort (scorecard observed / predicted 1.19 → 1.01 on OOT), re-tested on OOT.
 
 **Notebooks:** [01 data and target](notebooks/01_data_eda.ipynb) →
 [02 time split](notebooks/02_split.ipynb) →
@@ -90,7 +91,7 @@ default_month = months_paid + 1 + 3     # first missed instalment + 90 days
 target        = 1 if the status is a default status and default_month <= 12
 ```
 
-Check on matured 2010–2014 loans: the flag agrees with an independent estimate
+Check on matured 2010–2014 loans: the flag agrees with a second estimate
 from the last payment date for **96.3%** of defaulted loans. A loan enters the
 sample if `issue_d + 12 months + 3 months buffer` is not later than the snapshot
 (March 2019). The columns that build the target are listed in `TARGET_ONLY_COLS`
@@ -168,7 +169,7 @@ information that is not in the public data. Monotone constraints cost no accurac
 model still **adds** information to the grade: combined with it, LightGBM lifts Gini from
 0.417 to 0.472 and the scorecard to 0.435. The final verdict is given on OOT (2017) in Part 2.
 
-### Part 2: independent validation on OOT 2017
+### Part 2: validation on OOT 2017
 | Model | Gini OOT | vs benchmark | Observed / predicted PD | Verdict |
 |---|---|---|---|---|
 | Scorecard | 0.340 | −0.071 | 1.19 | **Not approved** as primary score |
@@ -178,12 +179,13 @@ model still **adds** information to the grade: combined with it, LightGBM lifts 
 
 Ranking holds on new borrowers (Gini drop test → OOT ≤ 1.8 pp, score PSI ≤ 0.03), but PD
 is under-predicted as default rates rose in 2017: recalibration is required before any PD use.
-9 findings (2 High, 5 Medium, 2 Low) with evidence and recommendations are in
+12 findings (2 High, 7 Medium, 3 Low) with evidence and recommendations are in
 `reports/tables/05_findings.csv`, together with a monitoring plan in notebook 05.
 
 **Remediation (notebook 06).** Recalibration fitted on the 2016 test cohort only, re-tested on
 OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.04 (Gini unchanged).
 F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark) stays open.
+The recalibration method was picked after seeing OOT, so a later cohort is needed to confirm it.
 
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop
