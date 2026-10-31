@@ -216,7 +216,7 @@ pip install -r requirements.txt
 
 ## Tests
 
-42 unit tests on small synthetic examples (no data download needed) cover the target
+44 unit tests on small synthetic examples (no data download needed) cover the target
 reconstruction, metrics (Gini, KS, PSI, IV, calibration tests), leakage control, the
 time split, the points scaling and the PD recalibration:
 

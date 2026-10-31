@@ -51,11 +51,28 @@ def test_calibration_of_a_well_calibrated_model():
     t = calibration_table(y, pd_)
     assert len(t) == 10
     assert (t["binomial_p"] > 0.001).all()
-    assert hosmer_lemeshow(y, pd_)[1] > 0.001
+    assert hosmer_lemeshow(y, pd_, out_of_sample=True)[1] > 0.001
 
 
 def test_calibration_detects_under_prediction():
     rng = np.random.default_rng(2)
     true_pd = rng.uniform(0.01, 0.2, 50_000)
     y = rng.random(50_000) < true_pd
-    assert hosmer_lemeshow(y, true_pd * 0.7)[1] < 0.001
+    assert hosmer_lemeshow(y, true_pd * 0.7, out_of_sample=True)[1] < 0.001
+
+
+def test_hosmer_lemeshow_degrees_of_freedom():
+    from scipy.stats import chi2
+
+    rng = np.random.default_rng(3)
+    pd_ = rng.uniform(0.01, 0.2, 50_000)
+    y = rng.random(50_000) < pd_
+    stat, p_fit = hosmer_lemeshow(y, pd_, out_of_sample=False)
+    _, p_oos = hosmer_lemeshow(y, pd_, out_of_sample=True)
+    assert p_fit == pytest.approx(chi2.sf(stat, 8))
+    assert p_oos == pytest.approx(chi2.sf(stat, 10))
+
+
+def test_hosmer_lemeshow_requires_explicit_sample_type():
+    with pytest.raises(TypeError):
+        hosmer_lemeshow([0, 1], [0.1, 0.2])
