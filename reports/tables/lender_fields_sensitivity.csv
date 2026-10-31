@@ -1,0 +1,5 @@
+variant,gini_test,diff_vs_baseline,ci_low,ci_high
+baseline,0.44298,0.0,0.0,0.0
+no verification_status,0.44154,-0.00144,-0.00426,0.00133
+no initial_list_status,0.44061,-0.00237,-0.00489,0.00041
+no lender fields,0.43989,-0.00309,-0.00617,-0.00014

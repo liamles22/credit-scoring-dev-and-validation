@@ -4,7 +4,7 @@
 |---|---|
 | **Models reviewed** | WoE logistic scorecard; LightGBM and CatBoost, plain and monotone |
 | **Purpose** | Rank applicants and estimate the probability of default at origination |
-| **Evidence** | Notebooks 01–06, `reports/tables/`, 42 unit tests |
+| **Evidence** | Notebooks 01–06, `reports/tables/`, 44 unit tests |
 | **Out-of-time sample** | 296,484 individual 36-month loans issued in 2017 |
 | **Status** | Portfolio exercise on public data. Not a real bank approval. |
 
@@ -97,7 +97,9 @@ information the grade does not.
 CatBoost monotone's OOT level looks best, but it over-predicted on test (7 deciles failed) and
 default rates then rose. The good OOT average may partly be offsetting errors, so it should not
 be read as better calibration overall. Hosmer–Lemeshow rejects every model on OOT; at this sample
-size it detects small deviations, so the observed / predicted ratio is more informative.
+size it detects small deviations, so the observed / predicted ratio is more informative. It uses
+n degrees of freedom on samples the models never saw; on test, LightGBM monotone sits at the
+5% boundary (p = 0.050) and CatBoost monotone is rejected.
 
 ### 5.3 Stability and robustness
 
@@ -111,7 +113,26 @@ size it detects small deviations, so the observed / predicted ratio is more info
 SHAP on 20,000 OOT loans ranks DTI, `loan_amnt`, accounts opened in 24 months and FICO highest.
 All except `loan_amnt` are also leading scorecard drivers (F6).
 
-### 5.5 Fairness
+### 5.5 Sensitivity to lender-controlled fields
+
+`verification_status` and `initial_list_status` are set by Lending Club and may partly carry its
+own risk view. LightGBM monotone was refitted without them, on train and test only.
+
+| Variant | Gini test | Difference | 95% CI, loan sampling |
+|---|---|---|---|
+| Baseline | 0.4430 | n/a | n/a |
+| Without `verification_status` | 0.4415 | −0.0014 | −0.0043 to +0.0013 |
+| Without `initial_list_status` | 0.4406 | −0.0024 | −0.0049 to +0.0004 |
+| Without both | 0.4399 | −0.0031 | −0.0062 to −0.0001 |
+
+Removing both lowers Gini in all four seeds tested (−0.0016 to −0.0039, mean −0.0027), and baseline
+Gini itself varies from 0.4414 to 0.4430 across seeds. The total effect on Gini is small, but this
+does not show the model is free of lender information: other features may carry it, and effects on
+individual applicants were not tested. On train, the share of Verified loans rises from 18% in
+grade A to 59% in grade G. That fits the hypothesis in F12 but does not prove it, because the grade
+also reflects borrower risk. The champion is unchanged, and this variant was not run on OOT.
+
+### 5.6 Fairness
 
 The data contains no protected characteristics, so fairness was **not measured directly**. As a
 limited proxy, 19 states with at least 5,000 OOT loans were compared at an 85% approval cut-off.
@@ -171,7 +192,7 @@ conditions. Low: improvement or documentation point.
 | F9 | Low | All | No recession in window; funded loans only; 42 months of development data | Open | Document; add downturn and reject-inference work |
 | F10 | Medium | All | Validation is not independent: same author, AI-assisted | Open | Real review by an independent party |
 | F11 | Medium | All | Post-hoc choices: success criteria changed, recalibration method and the 0.9–1.1 tolerance set after seeing OOT | Open | Pre-register; confirm on an untouched cohort |
-| F12 | Low | All | Explanations are untested hypotheses: why the grade is strong, why verification raises risk, why default rates rose | Open | Test or label as hypotheses |
+| F12 | Low | All | Explanations are not proven: why the grade is strong, why verification raises risk, why default rates rose. Section 5.5 is consistent with lender information, without proving it | Open | Test or label as hypotheses |
 
 Full evidence: [`tables/05_findings.csv`](tables/05_findings.csv).
 

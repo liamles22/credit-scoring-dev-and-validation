@@ -44,14 +44,18 @@ def calibration_table(y, pd_, n_bins: int = 10) -> pd.DataFrame:
     return t
 
 
-def hosmer_lemeshow(y, pd_, n_bins: int = 10):
-    """Hosmer-Lemeshow statistic and p-value over buckets of predicted PD."""
+def hosmer_lemeshow(y, pd_, *, out_of_sample: bool, n_bins: int = 10):
+    """Hosmer-Lemeshow statistic and p-value over buckets of predicted PD.
+
+    `out_of_sample` must be stated: degrees of freedom are n_bins - 2 on the fitting sample
+    and n_bins on a sample the model never saw, where no parameters were estimated.
+    """
     from scipy.stats import chi2
 
     t = calibration_table(y, pd_, n_bins)
     expected = t["loans"] * t["mean_pd"]
     stat = (((t["defaults"] - expected) ** 2) / (expected * (1 - t["mean_pd"]))).sum()
-    return float(stat), float(chi2.sf(stat, n_bins - 2))
+    return float(stat), float(chi2.sf(stat, n_bins if out_of_sample else n_bins - 2))
 
 
 def iv(bins, y, eps: float = 1e-4) -> float:
