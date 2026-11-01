@@ -1,0 +1,11 @@
+strategy,approval_rate,default_rate,defaults_avoided_share,good_loans_rejected_share,profit_pct_of_lending,profit_musd
+Approve all,1.0,0.0404,0.0,0.0,6.7159,241.9572
+Lending Club sub-grade,0.7,0.0246,0.5735,0.2885,4.3299,155.9951
+Scorecard,0.7,0.0276,0.5215,0.2907,5.0745,182.8201
+LightGBM monotone,0.7,0.0237,0.5892,0.2878,4.7597,171.4804
+Lending Club sub-grade,0.8,0.0282,0.4418,0.1898,5.0721,182.7354
+Scorecard,0.8,0.0307,0.3925,0.1919,5.7211,206.115
+LightGBM monotone,0.8,0.0276,0.4539,0.1893,5.4762,197.2938
+Lending Club sub-grade,0.9,0.0328,0.2685,0.0929,5.8837,211.9736
+Scorecard,0.9,0.0348,0.2242,0.0948,6.2794,226.2314
+LightGBM monotone,0.9,0.0321,0.2843,0.0922,6.1966,223.2468
