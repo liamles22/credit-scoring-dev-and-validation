@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Models reviewed** | WoE logistic scorecard; LightGBM and CatBoost, plain and monotone |
-| **Purpose** | Rank applicants and estimate the probability of default at origination |
-| **Evidence** | Notebooks 01–06, `reports/tables/`, 44 unit tests |
+| **Purpose** | Rank applicants by risk of early default and estimate the 12-month probability of default at origination |
+| **Evidence** | Notebooks 01–07, `reports/tables/`, unit tests, `docs/preregistration_model_v2.md` |
 | **Out-of-time sample** | 296,484 individual 36-month loans issued in 2017 |
 | **Status** | Portfolio exercise on public data. Not a real bank approval. |
 
@@ -17,8 +17,8 @@ recommendation, not that any committee approved a model.
 
 | Model | Gini OOT (95% CI) | vs benchmark (95% CI) | Observed / predicted PD | Recommendation |
 |---|---|---|---|---|
-| **LightGBM monotone** | **0.430** (0.421–0.439) | **+0.019** (+0.011 to +0.028) | 1.05 | **Approve with conditions** as champion for ranking |
-| CatBoost monotone | 0.426 (0.417–0.434) | +0.015 (+0.006 to +0.023) | 0.99 | Approve with conditions as challenger |
+| **LightGBM monotone** | **0.430** (0.421–0.439) | **+0.019** (+0.011 to +0.028) | 1.05 | **Conditional** champion, for ranking only |
+| CatBoost monotone | 0.426 (0.417–0.434) | +0.015 (+0.006 to +0.023) | 0.99 | Conditional challenger |
 | LightGBM, CatBoost (plain) | 0.428, 0.420 | +0.018, +0.010 | 1.05, 1.05 | Not recommended: no accuracy gain over monotone versions |
 | WoE scorecard | 0.340 (0.330–0.349) | −0.071 (−0.081 to −0.061) | 1.19 | **Do not approve** as primary score |
 | Lending Club sub-grade | 0.411 (0.402–0.420) | benchmark | n/a | Benchmark |
@@ -27,15 +27,22 @@ recommendation, not that any committee approved a model.
   across the four quarters of 2017. Score PSI is at most 0.03.
 - **The scorecard fails its main success criterion.** It ranks significantly worse than the
   lender's own grade, and recalibration cannot change that.
-- **PD level needed attention.** Default rates rose from 3.70% in development to 4.04% in 2017.
-  Recalibration on the 2016 cohort moves the scorecard from 1.19 to 1.01 and LightGBM monotone
+- **PD level needed attention.** The mixed development sample has a 3.70% default rate; 2017 has
+  4.04%. This is not a 2017 rise: by issue year the rate was 3.6% in 2015, 4.4% in 2016 and 4.1% in
+  2017, so models fitted mostly on earlier, lower-risk years start too low. Recalibration on the 2016 cohort moves the scorecard from 1.19 to 1.01 and LightGBM monotone
   from 1.05 to 1.03–1.04, though the method choice was not fully blind (F11).
-- **12 findings:** 2 High, 7 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
+- **Boosting fails one criterion as written.** Its Gini drop from train to OOT is 9.2–15.8 pp
+  against a 5 pp limit. It passes only on the later test-to-OOT reading (section 6), so the champion
+  recommendation is conditional and should not be read as a clean pass.
+- **The target is shorter than the product.** Models target 12-month default on 36-month loans.
+  Matured 2013–2015 test loans default at 3.2% in 12 months and 14.2% over their life. LightGBM still
+  beats the sub-grade on lifetime defaults there (section 5.7), but that is not out-of-time evidence.
+- **13 findings:** 2 High, 8 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
 
 ## 2. Scope and intended use
 
-**In scope:** ranking applicants for unsecured 36-month consumer loans at origination, and a
-12-month PD after recalibration.
+**In scope:** ranking applicants for unsecured 36-month consumer loans by risk of default within
+12 months, and a 12-month PD after recalibration. Loans defaulting later are labelled good.
 
 **Out of scope:** 60-month loans, joint applications, regulatory capital, stress testing,
 lifetime expected credit loss, and any population unlike funded Lending Club borrowers.
@@ -65,7 +72,9 @@ data does not contain.
   p < 0.01. Selection funnel: 78 candidates, 25 after IV and correlation filters, 21 after
   sign and significance checks. The filters cost about 0.02 Gini against all 70 binned features.
 - **Boosting:** 78 raw features. LightGBM tuned with 25 Optuna trials; CatBoost not tuned (F8).
-  Monotone directions come from binning trends and were reviewed by the author only.
+  "Monotone" means partly monotone: 21 of 78 features are constrained, and `loan_amnt`, the second
+  driver by SHAP, is not. Directions come from binning trends via Spearman correlation and were
+  reviewed by the author only, so they are data-derived, not independent business rules.
 - **2016 bureau fields:** the scorecard neutralises them for older loans with WoE 0. Boosting
   uses them raw, so missingness may partly encode the issue period (F4).
 
@@ -95,17 +104,23 @@ information the grade does not.
 | CatBoost monotone | 0.96 | 0.99 | 6 of 10 |
 
 CatBoost monotone's OOT level looks best, but it over-predicted on test (7 deciles failed) and
-default rates then rose. The good OOT average may partly be offsetting errors, so it should not
+the 2017 level was above its development mix. The good OOT average may partly be offsetting errors, so it should not
 be read as better calibration overall. Hosmer–Lemeshow rejects every model on OOT; at this sample
 size it detects small deviations, so the observed / predicted ratio is more informative. It uses
 n degrees of freedom on samples the models never saw; on test, LightGBM monotone sits at the
 5% boundary (p = 0.050) and CatBoost monotone is rejected.
+
+The boosting advantage over the scorecard on calibration (1.05 against 1.19) should not be read as
+model quality. Missing 2016 fields reveal older loans to boosting, so it can partly learn the issue
+period, while the scorecard neutralises them (F4).
 
 ### 5.3 Stability and robustness
 
 - **Score PSI train to OOT:** at most 0.027. Non-2016 features: at most 0.054.
 - **2016 fields:** PSI near 5.9 against all of train, by construction; at most 0.016 against 2016
   train loans.
+- **Champion inputs:** PSI train to OOT for all 78 features is at most 0.065
+  (`tables/champion_feature_psi.csv`). The 2016 fields use 2016 train loans as reference.
 - **Debt settlements:** removing them changes OOT Gini by at most 0.003.
 
 ### 5.4 Interpretability
@@ -143,6 +158,32 @@ limited proxy, 19 states with at least 5,000 OOT loans were compared at an 85% a
 | Scorecard | 0.95 | 0.24–0.41 | 0.85–1.41 |
 
 Passing the four-fifths rule by state does not show the absence of discrimination (F7).
+
+### 5.7 Lifetime defaults on matured loans
+
+The models are trained on 12-month default, so this checks the product's whole term. It uses 101,082
+test loans issued before 2016, from the development period, and is not out-of-time evidence.
+
+| Score | Gini, 12 months | Gini, lifetime | Lifetime vs sub-grade (95% CI) |
+|---|---|---|---|
+| LightGBM monotone | 0.444 | 0.368 | +0.028 (+0.020 to +0.036) |
+| CatBoost monotone | 0.436 | 0.366 | +0.026 (+0.017 to +0.034) |
+| Lending Club sub-grade | 0.418 | 0.340 | benchmark |
+| Scorecard | 0.360 | 0.323 | −0.017 (−0.026 to −0.008) |
+
+Here the boosting advantage is not limited to the 12-month target. Ranking of defaults after month
+12 only is weaker but keeps the same order (LightGBM 0.335, sub-grade 0.308). The same check cannot
+yet be made for 2017, as 58% of those loans were still open at the snapshot.
+
+### 5.8 Later experiments
+
+- **Model v2:** a pre-registered test of affordability features and time-based tuning adopted
+  nothing. LightGBM gained at most 0.002 Gini on average; the scorecard gained 0.017 but exceeded the
+  calibration limit. See `docs/preregistration_model_v2.md`.
+- **Business impact on 2017 loans (notebook 07):** at 80% approval the default rate is 2.76% for
+  LightGBM monotone and 2.82% for the sub-grade, against 4.04% with no screening. All these loans
+  were already funded by Lending Club. The 12-month profit estimate is rejected for ranking models,
+  because it ignores defaults after month 12.
 
 ## 6. Success criteria
 
@@ -184,14 +225,15 @@ conditions. Low: improvement or documentation point.
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
 | F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated | Keep recalibration; confirm on a later cohort |
 | F3 | Medium | Boosting | PD moderately under-predicted (1.05) | Within tolerance | Monitor; add a margin of conservatism |
-| F4 | Medium | All | Calibration differs before and from 2016; may reflect the 2016 fields, credit policy or both | Mitigated | Re-estimate on 2016+ data |
+| F4 | Medium | All | Calibration differs before and from 2016; may reflect the 2016 fields, credit policy or both. Boosting's calibration lead may be an artefact of missing fields revealing the period | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible | Open | Validate against real payment history |
-| F6 | Medium | Boosting | `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Review its shape and rationale |
+| F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
 | F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |
 | F8 | Low | Boosting | Tuning and early stopping share a holdout; CatBoost not tuned | Open | Separate tuning holdout; tune CatBoost |
 | F9 | Low | All | No recession in window; funded loans only; 42 months of development data | Open | Document; add downturn and reject-inference work |
 | F10 | Medium | All | Validation is not independent: same author | Open | Real review by an independent party |
-| F11 | Medium | All | Post-hoc choices: success criteria changed, recalibration method and the 0.9–1.1 tolerance set after seeing OOT | Open | Pre-register; confirm on an untouched cohort |
+| F11 | Medium | All | Post-hoc choices: success criteria changed, recalibration method and the 0.9–1.1 tolerance set after seeing OOT. Monotone preference was set before OOT, on explainability, but not as a written rule (plain LightGBM was 0.0002 higher on test) | Open | Pre-register; confirm on an untouched cohort |
+| F13 | Medium | All | Target horizon is shorter than the product: most lifetime defaults are labelled good | Open | Limit use to early-default ranking; add a lifetime view for long-run decisions |
 | F12 | Low | All | Explanations are not proven: why the grade is strong, why verification raises risk, why default rates rose. Section 5.5 is consistent with lender information, without proving it | Open | Test or label as hypotheses |
 
 Full evidence: [`tables/05_findings.csv`](tables/05_findings.csv).
@@ -205,7 +247,7 @@ matured cohort (F11).
 | Metric | Frequency | Amber | Red |
 |---|---|---|---|
 | Score PSI against development | Quarterly | > 0.10 | > 0.25 |
-| Feature PSI | Quarterly | > 0.10 | > 0.25 |
+| Feature PSI, all 78 champion inputs | Quarterly | > 0.10 | > 0.25 |
 | Gini of cohorts after 12 months | Quarterly | Drop > 3 pp | Drop > 5 pp |
 | Observed / predicted PD | Quarterly | Outside 0.9–1.1 | Outside 0.8–1.2 |
 | Adverse impact ratio by state | Semi-annually | < 0.9 | < 0.8 |
@@ -217,10 +259,10 @@ proposals and were set after seeing results (F11).
 
 | Item | Description |
 |---|---|
-| **Task** | Binary classification: 90+ days past due within 12 months of issue |
+| **Task** | Binary classification: 90+ days past due within 12 months of issue; not lifetime default |
 | **Intended use** | Ranking individual 36-month consumer loan applicants, alongside the existing grade |
 | **Not intended for** | Fully automated decisions, capital, stress testing, other products or populations |
-| **Algorithm** | LightGBM with monotone constraints on 21 numeric features |
+| **Algorithm** | LightGBM, partly monotone: constraints on 21 of 78 features |
 | **Inputs** | 78 application and bureau fields known at origination; no state or ZIP code |
 | **Training data** | 592,616 loans issued 2013-07 to 2016-12; 65,847 for early stopping and tuning |
 | **Performance** | Test Gini 0.443; OOT 2017 Gini 0.430, KS 0.313 |
@@ -253,6 +295,16 @@ point 5(b). Regulation (EU) 2026/1744 moved the application date of these obliga
 | Post-market monitoring (Art. 72) | Proposed monitoring table | Not implemented |
 | Explanation of decisions (Art. 86) | SHAP analysis | No individual explanations |
 
+**US lending rules, the home jurisdiction of this data.** ECOA and Regulation B require specific,
+accurate principal reasons for adverse action (12 CFR 1002.9), and a low score alone is not a reason.
+CFPB Circular 2022-03 says complex algorithms are no exception, and FCRA key factors do not replace
+those reasons. The project has SHAP but no tested reason codes, so the champion could not meet this
+today. The CFPB final rule published on 22 April 2026 removed the effects test from Regulation B, but
+disparate treatment and intentional proxy use remain prohibited, the Fair Housing Act and state laws
+are outside that rule, and its treatment by courts is unsettled. The fairness test here therefore
+stays a risk indicator, not a compliance conclusion. The status of these rules and circulars must be
+rechecked before real use.
+
 **US: SR 26-2.** On 17 April 2026 the Federal Reserve, OCC and FDIC replaced SR 11-7 with revised
 model risk guidance. It is risk-based, not itself enforceable, and aimed mainly at banks with over
 $30 billion in assets. This report keeps the classic validation elements (conceptual soundness,
@@ -271,3 +323,6 @@ that, so the model is not suitable for capital use.
 - [Federal Reserve SR 26-2](https://www.federalreserve.gov/supervisionreg/srletters/SR2602.htm)
 - [OCC Bulletin 2026-13](https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13.html)
 - [FDIC: Agencies Revise the Interagency Model Risk Management Guidance](https://www.fdic.gov/news/financial-institution-letters/2026/agencies-revise-interagency-model-risk-management-guidance)
+- [Regulation B, 12 CFR Part 1002](https://www.ecfr.gov/current/title-12/chapter-X/part-1002)
+- [CFPB Circular 2022-03](https://www.consumerfinance.gov/compliance/circulars/circular-2022-03-adverse-action-notification-requirements-in-connection-with-credit-decisions-based-on-complex-algorithms/)
+- [CFPB Regulation B final rule, 22 April 2026](https://www.federalregister.gov/documents/2026/04/22/2026-07804/equal-credit-opportunity-act-regulation-b)

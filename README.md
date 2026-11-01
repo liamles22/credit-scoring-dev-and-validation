@@ -13,12 +13,15 @@ Out-of-time year 2017, 296,484 loans never used in development:
 
 | Model | Gini | vs Lending Club's own grade | PD calibration (observed / predicted) | Verdict |
 |---|---|---|---|---|
-| **LightGBM, monotone** | **0.430** | **+0.019** (significant) | 1.05 | **Approved with conditions** |
-| CatBoost, monotone | 0.426 | +0.015 (significant) | 0.99 | Approved with conditions (challenger) |
+| **LightGBM, partly monotone** | **0.430** | **+0.019** (significant) | 1.05 | **Conditional champion**, ranking only |
+| CatBoost, partly monotone | 0.426 | +0.015 (significant) | 0.99 | Conditional challenger |
 | WoE logistic scorecard | 0.340 | −0.071 | 1.19 | Not approved as primary score |
 | Lending Club sub-grade (benchmark) | 0.411 | — | — | — |
 
 ![Model comparison: Gini on test and on out-of-time 2017](reports/figures/05_discrimination.png)
+
+"Partly monotone" means constraints on 21 of 78 features. Target: default within 12 months, not over
+the 36-month term. Boosting fails the original train-to-OOT Gini drop limit (9.2–15.8 pp against 5 pp).
 
 **What makes this project different**
 - **Bank-standard target:** default = 90+ days past due within 12 months (Basel / CRR Art. 178),
@@ -29,7 +32,7 @@ Out-of-time year 2017, 296,484 loans never used in development:
   test year.
 - **Honest benchmark:** the scorecard does not beat the lender's own grade, and this is
   reported, along with the fact that every model still adds information to that grade.
-- **Validation report:** 12 findings rated High / Medium / Low, including this project's own
+- **Validation report:** 13 findings rated High / Medium / Low, including this project's own
   weaknesses, a recommendation per model, a model card and an EU AI Act gap analysis:
   [reports/validation_report.md](reports/validation_report.md).
 - **Remediation loop:** PD under-prediction fixed by recalibrating on the most recent matured
@@ -40,7 +43,8 @@ Out-of-time year 2017, 296,484 loans never used in development:
 [03 binning and feature selection](notebooks/03_features.ipynb) →
 [04 models](notebooks/04_modeling.ipynb) →
 [05 validation](notebooks/05_validation.ipynb) →
-[06 remediation](notebooks/06_remediation.ipynb)
+[06 remediation](notebooks/06_remediation.ipynb) →
+[07 business impact](notebooks/07_business_impact.ipynb)
 
 ## Problem statement
 
@@ -128,7 +132,9 @@ Source: Kaggle, *Lending Club* dataset (wordsforthewise), file `accepted_2007_to
 | 3 | Binning, WoE, IV, feature selection, correlations / VIF | `03_features.ipynb` |
 | 4 | Models: LogReg (WoE), LightGBM, CatBoost, hyperparameter tuning | `04_modeling.ipynb` |
 | 5 | Validation and comparison | `05_validation.ipynb` |
-| 6 | Final report | `reports/` |
+| 6 | PD recalibration | `06_remediation.ipynb` |
+| 7 | Business impact | `07_business_impact.ipynb` |
+| 8 | Final report | `reports/validation_report.md` |
 
 ### Split
 - **OOT**: loans issued in 2017 (~296k individual), the latest year with 12 months observed
@@ -173,13 +179,14 @@ model still **adds** information to the grade: combined with it, LightGBM lifts 
 | Model | Gini OOT | vs benchmark | Observed / predicted PD | Verdict |
 |---|---|---|---|---|
 | Scorecard | 0.340 | −0.071 | 1.19 | **Not approved** as primary score |
-| **LightGBM monotone** | **0.430** | **+0.019** | 1.05 | **Approved with conditions** (champion) |
-| CatBoost monotone | 0.426 | +0.015 | 0.99 | Approved with conditions (challenger) |
+| **LightGBM, partly monotone** | **0.430** | **+0.019** | 1.05 | **Conditional champion**, ranking only |
+| CatBoost, partly monotone | 0.426 | +0.015 | 0.99 | Conditional challenger |
 | Benchmark: sub-grade | 0.411 | — | — | — |
 
 Ranking holds on new borrowers (Gini drop test → OOT ≤ 1.8 pp, score PSI ≤ 0.03), but PD
-is under-predicted as default rates rose in 2017: recalibration is required before any PD use.
-12 findings (2 High, 7 Medium, 3 Low) with evidence and recommendations are in
+is under-predicted because models learned mostly from lower-risk years (issue-year default rates:
+3.6% in 2015, 4.4% in 2016, 4.1% in 2017): recalibration is required before any PD use.
+13 findings (2 High, 8 Medium, 3 Low) with evidence and recommendations are in
 `reports/tables/05_findings.csv`, together with a monitoring plan in notebook 05.
 
 **Remediation (notebook 06).** Recalibration fitted on the 2016 test cohort only, re-tested on
@@ -210,13 +217,16 @@ reports/        # report and figures
 ## Environment
 
 ```bash
+conda env create -f environment.yml
 conda activate ml
-pip install -r requirements.txt
 ```
+
+Re-run every notebook (needs the raw CSV; retrains the models): `python -m scripts.run_notebooks`.
+The tests also run on GitHub Actions.
 
 ## Tests
 
-44 unit tests on small synthetic examples (no data download needed) cover the target
+Unit tests on small synthetic examples (no data download needed) cover the target
 reconstruction, metrics (Gini, KS, PSI, IV, calibration tests), leakage control, the
 time split, the points scaling and the PD recalibration:
 

@@ -1,0 +1,5 @@
+score,gini_12m,gini_lifetime,gini_later_defaults_only,lifetime_vs_benchmark,ci_low,ci_high
+Lending Club sub-grade,0.4177,0.34023,0.30785,0.0,0.0,0.0
+Scorecard,0.36026,0.32331,0.30271,-0.01692,-0.02594,-0.00783
+LightGBM monotone,0.44401,0.36793,0.33536,0.0277,0.01958,0.03635
+CatBoost monotone,0.43583,0.36582,0.33502,0.0256,0.01734,0.03429
