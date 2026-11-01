@@ -21,7 +21,7 @@ Out-of-time year 2017, 296,484 loans never used in development:
 ![Model comparison: Gini on test and on out-of-time 2017](reports/figures/05_discrimination.png)
 
 "Partly monotone" means constraints on 21 of 78 features. Target: default within 12 months, not over
-the 36-month term. Boosting fails the original train-to-OOT Gini drop limit (9.2–15.8 pp against 5 pp).
+the 36-month term, and a 2015 time check shows no lifetime lead over the grade. Boosting fails the original train-to-OOT Gini drop limit (9.2–15.8 pp against 5 pp).
 
 **What makes this project different**
 - **Bank-standard target:** default = 90+ days past due within 12 months (Basel / CRR Art. 178),
@@ -184,8 +184,8 @@ model still **adds** information to the grade: combined with it, LightGBM lifts 
 | Benchmark: sub-grade | 0.411 | — | — | — |
 
 Ranking holds on new borrowers (Gini drop test → OOT ≤ 1.8 pp, score PSI ≤ 0.03), but PD
-is under-predicted because models learned mostly from lower-risk years (issue-year default rates:
-3.6% in 2015, 4.4% in 2016, 4.1% in 2017): recalibration is required before any PD use.
+is under-predicted (issue-year default rates: 3.6% in 2015, 4.4% in 2016, 4.1% in 2017). This fits
+models fitted mostly on lower-risk years, but the cause is unproven: recalibration is required before any PD use.
 13 findings (2 High, 8 Medium, 3 Low) with evidence and recommendations are in
 `reports/tables/05_findings.csv`, together with a monitoring plan in notebook 05.
 
@@ -221,7 +221,7 @@ conda env create -f environment.yml
 conda activate ml
 ```
 
-Re-run every notebook (needs the raw CSV; retrains the models): `python -m scripts.run_notebooks`.
+Re-run all notebooks and scripts (needs the raw CSV; retrains the models): `python -m scripts.run_notebooks`.
 The tests also run on GitHub Actions.
 
 ## Tests

@@ -20,7 +20,7 @@ def bins(reference: pd.Series, new: pd.Series):
         return reference.astype(object).fillna("missing"), new.astype(object).fillna("missing")
     edges = np.unique(np.nanquantile(reference.to_numpy(dtype=float), np.linspace(0, 1, 11)))
     edges[0], edges[-1] = -np.inf, np.inf
-    cut = lambda s: pd.cut(s, edges).astype(object).astype(str)
+    cut = lambda s: pd.cut(s, edges).astype(object).fillna("missing").map(str)
     return cut(reference), cut(new)
 
 

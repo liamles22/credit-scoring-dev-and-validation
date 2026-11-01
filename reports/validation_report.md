@@ -29,14 +29,16 @@ recommendation, not that any committee approved a model.
   lender's own grade, and recalibration cannot change that.
 - **PD level needed attention.** The mixed development sample has a 3.70% default rate; 2017 has
   4.04%. This is not a 2017 rise: by issue year the rate was 3.6% in 2015, 4.4% in 2016 and 4.1% in
-  2017, so models fitted mostly on earlier, lower-risk years start too low. Recalibration on the 2016 cohort moves the scorecard from 1.19 to 1.01 and LightGBM monotone
+  2017. That pattern is consistent with models fitted mostly on earlier, lower-risk years starting
+  too low, but the cause is not proven (F4, F12). Recalibration on the 2016 cohort moves the scorecard from 1.19 to 1.01 and LightGBM monotone
   from 1.05 to 1.03–1.04, though the method choice was not fully blind (F11).
 - **Boosting fails one criterion as written.** Its Gini drop from train to OOT is 9.2–15.8 pp
   against a 5 pp limit. It passes only on the later test-to-OOT reading (section 6), so the champion
   recommendation is conditional and should not be read as a clean pass.
 - **The target is shorter than the product.** Models target 12-month default on 36-month loans.
-  Matured 2013–2015 test loans default at 3.2% in 12 months and 14.2% over their life. LightGBM still
-  beats the sub-grade on lifetime defaults there (section 5.7), but that is not out-of-time evidence.
+  Matured 2013–2015 test loans default at 3.2% in 12 months and 14.2% over their life. A LightGBM
+  fitted on 2013–2014 ranks 2015 loans below the sub-grade, on lifetime defaults too (section 5.7), so
+  lifetime superiority is not shown.
 - **13 findings:** 2 High, 8 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
 
 ## 2. Scope and intended use
@@ -119,7 +121,8 @@ period, while the scorecard neutralises them (F4).
 - **Score PSI train to OOT:** at most 0.027. Non-2016 features: at most 0.054.
 - **2016 fields:** PSI near 5.9 against all of train, by construction; at most 0.016 against 2016
   train loans.
-- **Champion inputs:** PSI train to OOT for all 78 features is at most 0.065
+- **Champion inputs:** PSI train to OOT for all 78 features, with missing as its own bin, is at most
+  0.055
   (`tables/champion_feature_psi.csv`). The 2016 fields use 2016 train loans as reference.
 - **Debt settlements:** removing them changes OOT Gini by at most 0.003.
 
@@ -161,8 +164,9 @@ Passing the four-fifths rule by state does not show the absence of discriminatio
 
 ### 5.7 Lifetime defaults on matured loans
 
-The models are trained on 12-month default, so this checks the product's whole term. It uses 101,082
-test loans issued before 2016, from the development period, and is not out-of-time evidence.
+The models are trained on 12-month default, so this checks the product's whole term. The first table
+uses 101,082 test loans issued before 2016. The boosting models were trained on those same years, while
+the sub-grade was set in advance, so this comparison favours boosting.
 
 | Score | Gini, 12 months | Gini, lifetime | Lifetime vs sub-grade (95% CI) |
 |---|---|---|---|
@@ -171,9 +175,19 @@ test loans issued before 2016, from the development period, and is not out-of-ti
 | Lending Club sub-grade | 0.418 | 0.340 | benchmark |
 | Scorecard | 0.360 | 0.323 | −0.017 (−0.026 to −0.008) |
 
-Here the boosting advantage is not limited to the 12-month target. Ranking of defaults after month
-12 only is weaker but keeps the same order (LightGBM 0.335, sub-grade 0.308). The same check cannot
-yet be made for 2017, as 58% of those loans were still open at the snapshot.
+A check across time reverses this. LightGBM monotone was refitted on 2013-07 to 2014-12, without the
+2016 fields, and scored on 282,848 matured loans issued in 2015:
+
+| Target | LightGBM (3 seeds) | Sub-grade | Difference, seed 42 (95% CI) |
+|---|---|---|---|
+| 12 months | 0.419–0.421 | 0.440 | −0.020 (−0.029 to −0.013) |
+| Lifetime | 0.349 | 0.357 | −0.008 (−0.013 to −0.004) |
+
+**Lifetime superiority over the grade is therefore not shown, and the same-period gap above is
+inflated.** This refit is a weaker model than the champion: 172k fitting loans against 593k, and no
+2016 fields. It does not contradict the 2017 OOT result, but it shows that the boosting lead over the
+grade depends on the setup. Lifetime performance of the champion on 2017 cannot be measured yet, as
+58% of those loans were still open at the snapshot.
 
 ### 5.8 Later experiments
 
@@ -233,8 +247,8 @@ conditions. Low: improvement or documentation point.
 | F9 | Low | All | No recession in window; funded loans only; 42 months of development data | Open | Document; add downturn and reject-inference work |
 | F10 | Medium | All | Validation is not independent: same author | Open | Real review by an independent party |
 | F11 | Medium | All | Post-hoc choices: success criteria changed, recalibration method and the 0.9–1.1 tolerance set after seeing OOT. Monotone preference was set before OOT, on explainability, but not as a written rule (plain LightGBM was 0.0002 higher on test) | Open | Pre-register; confirm on an untouched cohort |
-| F13 | Medium | All | Target horizon is shorter than the product: most lifetime defaults are labelled good | Open | Limit use to early-default ranking; add a lifetime view for long-run decisions |
-| F12 | Low | All | Explanations are not proven: why the grade is strong, why verification raises risk, why default rates rose. Section 5.5 is consistent with lender information, without proving it | Open | Test or label as hypotheses |
+| F12 | Low | All | Explanations are not proven: why the grade is strong, why verification raises risk, why default rates differ by issue year. Section 5.5 is consistent with lender information, without proving it | Open | Test or label as hypotheses |
+| F13 | Medium | All | Target horizon is shorter than the product: most lifetime defaults are labelled good, and a 2015 time check shows no lifetime lead over the grade | Open | Limit use to early-default ranking; do not claim lifetime superiority; repeat when 2017 matures |
 
 Full evidence: [`tables/05_findings.csv`](tables/05_findings.csv).
 
@@ -260,7 +274,7 @@ proposals and were set after seeing results (F11).
 | Item | Description |
 |---|---|
 | **Task** | Binary classification: 90+ days past due within 12 months of issue; not lifetime default |
-| **Intended use** | Ranking individual 36-month consumer loan applicants, alongside the existing grade |
+| **Intended use** | Ranking individual 36-month consumer loan applicants by risk of default within 12 months, alongside the existing grade; not lifetime risk |
 | **Not intended for** | Fully automated decisions, capital, stress testing, other products or populations |
 | **Algorithm** | LightGBM, partly monotone: constraints on 21 of 78 features |
 | **Inputs** | 78 application and bureau fields known at origination; no state or ZIP code |
