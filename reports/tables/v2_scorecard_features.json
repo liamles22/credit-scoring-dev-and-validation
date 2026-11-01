@@ -1,0 +1,33 @@
+{
+  "S1": [
+    "mths_since_rcnt_il",
+    "fico_range_low",
+    "acc_open_past_24mths",
+    "dti_with_loan",
+    "il_util",
+    "bc_open_to_buy",
+    "mths_since_recent_inq",
+    "mo_sin_rcnt_tl",
+    "inq_last_6mths",
+    "verification_status",
+    "tot_hi_cred_lim",
+    "inq_fi",
+    "total_rev_hi_lim",
+    "purpose",
+    "mo_sin_old_rev_tl_op",
+    "home_ownership",
+    "mths_since_recent_bc",
+    "percent_bc_gt_75",
+    "mo_sin_old_il_acct",
+    "loan_to_income",
+    "emp_length"
+  ],
+  "added": [
+    "dti_with_loan",
+    "loan_to_income"
+  ],
+  "removed": [
+    "dti",
+    "annual_inc"
+  ]
+}

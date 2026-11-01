@@ -95,3 +95,21 @@ These facts weaken the experiment and must be reported with its results:
 ## Changes
 
 None yet.
+
+## Results
+
+Recorded on 1 November 2026, after running `scripts/model_v2_experiment.py`. The plan was not
+changed. **No variant passed, so the current models stay.** Tables: `reports/tables/v2_*`.
+
+| Variant | Mean Gini gain | Lowest seed gain | 95% CI, seed 42 | Calibration loss | Passes |
+|---|---|---|---|---|---|
+| A1: new features | +0.0022 | +0.0012 | −0.0005 to +0.0066 | +0.0031 | No (gain below 0.005, CI) |
+| A2: retuned | −0.0007 | −0.0020 | −0.0036 to +0.0042 | −0.0072 | No (gain below 0.005, seeds, CI) |
+| A3: new features, retuned | +0.0019 | −0.0010 | −0.0007 to +0.0069 | −0.0017 | No (gain below 0.005, seeds, CI) |
+| S1: scorecard, new features | +0.0169 | n/a | +0.0134 to +0.0204 | +0.0231 | No (calibration loss above 0.02) |
+
+A0 mean Gini was 0.3990 and S0 Gini was 0.3104 on the Selection slice. S1 added `dti_with_loan` and
+`loan_to_income`, and the rules removed `dti` and `annual_inc`. Calibration gaps are large on this
+slice for every scorecard variant (0.24–0.27), so S1 narrowly fails on a metric dominated by the
+level shift. A recalibration-based comparison would need a new pre-registered experiment and
+would be exploratory, because these results are now known.

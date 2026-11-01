@@ -1,0 +1,16 @@
+{
+  "A2": {
+    "num_leaves": 27,
+    "min_child_samples": 2945,
+    "colsample_bytree": 0.901481862956895,
+    "subsample": 0.5661035271651227,
+    "reg_lambda": 0.002547801623785335
+  },
+  "A3": {
+    "num_leaves": 43,
+    "min_child_samples": 2887,
+    "colsample_bytree": 0.7912617487691004,
+    "subsample": 0.6125269912945911,
+    "reg_lambda": 0.006009003309604821
+  }
+}
