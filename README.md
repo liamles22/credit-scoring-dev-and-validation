@@ -195,11 +195,15 @@ F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark)
 The recalibration method was picked after seeing OOT.
 
 **Pre-registered follow-ups.** On 42,162 loans from January–February 2018, LightGBM reached Gini 0.450
-against 0.423 for the grade (lower interval bound +0.001) and recalibrated observed / predicted 0.94.
-Its recalibration did not help there. Removing the 2016 bureau fields takes its OOT calibration from
-1.05 to 1.19, so its lead over the scorecard depends on those fields. On matured 2015 loans, a
-2013–2014 refit earned more than the grade at 80% approval ($224m vs $206m before costs), despite
-ranking defaults worse. Reason codes exist only as an unreviewed prototype. See the report, section 5.
+against 0.423 for the grade: a borderline result (lower interval bound +0.0008). Recalibrated observed /
+predicted was 0.94, and recalibration did not help it there. Removing the 2016 bureau fields takes OOT
+calibration from 1.05 to 1.19, so its calibration lead over the scorecard depends on them; its ranking
+lead remains (Gini 0.422 vs 0.340). The cause inside those fields is not separated yet.
+
+**Exploratory, not pre-registered.** On 2015 loans, a 2013–2014 refit ranked below the grade on the
+12-month target (−0.020 Gini) and lifetime defaults (−0.008). At 80% approval it still earned more than
+the grade ($224m vs $206m before costs), but rates came from the grade, about $5m is extra volume, and
+approving everyone earned the most ($237m). Reason codes exist only as an unreviewed prototype.
 
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop

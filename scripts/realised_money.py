@@ -2,8 +2,9 @@
 
 Profit of a loan = total_pymnt - funded_amnt, using actual lifetime payments. These post-origination
 columns are outcomes here and never model inputs. The model is the 2013-2014 refit of
-scripts/lifetime_temporal_check.py, not the champion, so it never saw 2015. Funding and operating
-costs are not included, and declined applicants are not observed.
+scripts/lifetime_temporal_check.py, not the champion. It was not fitted on 2015, but its parameters
+and monotone directions came from a window including 2015. Funding and operating costs are not
+included, and declined applicants are not observed.
 
 Run from the project root: python -m scripts.realised_money
 """
