@@ -197,8 +197,9 @@ The recalibration method was picked after seeing OOT.
 **Pre-registered follow-ups.** On 42,162 loans from January–February 2018, LightGBM reached Gini 0.450
 against 0.423 for the grade: a borderline result (lower interval bound +0.0008). Recalibrated observed /
 predicted was 0.94, and recalibration did not help it there. Removing the 2016 bureau fields takes OOT
-calibration from 1.05 to 1.19, so its calibration lead over the scorecard depends on them; its ranking
-lead remains (Gini 0.422 vs 0.340). The cause inside those fields is not separated yet.
+calibration from 1.05 to 1.19, and one "fields available" flag restores 97% of the shift. So its
+calibration lead over the scorecard is a period signal, not better borrower-level calibration; its
+ranking lead remains (Gini 0.422 vs 0.340).
 
 **Exploratory, not pre-registered.** On 2015 loans, a 2013–2014 refit ranked below the grade on the
 12-month target (−0.020 Gini) and lifetime defaults (−0.008). At 80% approval it still earned more than

@@ -43,9 +43,10 @@ recommendation, not that any committee approved a model.
   February 2018, LightGBM monotone scored Gini 0.450 against 0.423 for the sub-grade. It passed the
   pre-set rule, but the lower interval bound of +0.0008 is close enough to zero that bootstrap noise
   alone could change the verdict. Recalibrated PD stayed in the 0.9–1.1 band at 0.94 (section 5.9).
-- **Boosting's calibration lead depends on the 2016 fields.** Without them, its OOT level falls to
-  the scorecard's 1.19 (section 5.9). Whether this comes from their content or their missing pattern
-  is not separated yet. Its ranking lead over the scorecard stays: Gini 0.422 against 0.340.
+- **Boosting's calibration lead comes from a period signal.** Without the 2016 fields its OOT level
+  falls to the scorecard's 1.19, and one flag showing they are available restores 97% of the lead
+  (section 5.9). It is not evidence of better borrower-level calibration. Its ranking lead over the
+  scorecard stays: Gini 0.422 against 0.340.
 - **13 findings:** 2 High, 8 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
 
 ## 2. Scope and intended use
@@ -120,7 +121,7 @@ n degrees of freedom on samples the models never saw; on test, LightGBM monotone
 5% boundary (p = 0.050) and CatBoost monotone is rejected.
 
 The boosting advantage over the scorecard on calibration (1.05 against 1.19) should not be read as
-model quality. The ablation in section 5.9 removes it entirely (F4).
+model quality. The ablation in section 5.9 traces it to a period signal (F4).
 
 ### 5.3 Stability and robustness
 
@@ -212,8 +213,22 @@ Conditions were committed first (`docs/preregistration_confirmation_2018.md`).
 **Ablation.** Removing the 14 2016 fields from LightGBM monotone raises observed / predicted on 2016
 test loans from 1.02 to 1.17, far beyond the 0.05 rule, and OOT from 1.05 to 1.19 (diagnostic). Test
 Gini falls from 0.442 to 0.431, so the fields also add ranking information, though OOT Gini stays at
-0.422 against 0.340 for the scorecard. Fields and their missing pattern were removed together, so the
-rule's word "artefact" is not proven; a follow-up with an availability flag is pre-registered.
+0.422 against 0.340 for the scorecard.
+
+A follow-up added one flag, "fields are available", to the model without the fields. Its conditions were
+pushed before the run (`docs/preregistration_ablation_flag.md`).
+
+| LightGBM monotone | All fields | No fields | No fields + flag |
+|---|---|---|---|
+| Observed / predicted, 2016 test | 1.016 | 1.169 | 1.021 |
+| Gini, test | 0.442 | 0.431 | 0.440 |
+| Observed / predicted, OOT diagnostic | 1.051 | 1.194 | 1.046 |
+| Gini, OOT diagnostic | 0.430 | 0.422 | 0.427 |
+
+The flag restores 97% of the calibration shift, so the rule's conclusion is **mainly the availability
+pattern**. The flag is 1 for loans issued from December 2015 onward, except 44 in January 2016, and 0 before, so it works as a period indicator. The
+content of the 14 fields adds little: about 0.002–0.003 Gini here. The flag's Gini gain on the pooled test
+sample also partly reflects separating periods, not ranking borrowers.
 
 **2018 check.** January and February 2018, 42,162 loans, 1,495 defaults; no model was refitted.
 
@@ -316,7 +331,7 @@ conditions. Low: improvement or documentation point.
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
 | F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated | Keep recalibration; confirm on a later cohort |
 | F3 | Medium | Boosting | PD moderately under-predicted (1.05) | Within tolerance | Monitor; add a margin of conservatism |
-| F4 | Medium | All | Calibration differs before and from 2016. Ablation shows boosting's calibration lead depends on the 2016 fields; the underlying level shift is still unexplained | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
+| F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible | Open | Validate against real payment history |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
 | F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |
@@ -357,7 +372,7 @@ proposals and were set after seeing results (F11).
 | **Inputs** | 78 application and bureau fields known at origination; no state or ZIP code |
 | **Training data** | 592,616 loans issued 2013-07 to 2016-12; 65,847 for early stopping and tuning |
 | **Performance** | Test Gini 0.443; OOT 2017 Gini 0.430, KS 0.313 |
-| **Calibration** | Observed / predicted 1.05 on OOT, 1.03–1.04 recalibrated; 0.96 and 0.94 on early 2018; level depends on the 2016 fields |
+| **Calibration** | Observed / predicted 1.05 on OOT, 1.03–1.04 recalibrated; 0.96 and 0.94 on early 2018; level relies on a period signal from the 2016 fields |
 | **Main drivers** | DTI, loan amount, accounts opened in 24 months, FICO |
 | **Known limits** | Proxy target, no recession, funded loans only, fairness not directly measured |
 | **Explainability** | SHAP values and prototype reason codes; first reason stable for 90% of loans across refits; no legal review |

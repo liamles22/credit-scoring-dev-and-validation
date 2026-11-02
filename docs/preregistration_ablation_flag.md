@@ -43,4 +43,20 @@ it does not record which fields are missing.
 
 ## Changes
 
-None yet.
+None. The script ran once under this plan, after this file was pushed in commit `4d526f1`.
+
+## Results
+
+Recorded on 2 November 2026. **Conclusion under the rule: mainly the availability pattern.**
+
+| Metric | C0 | C1 | C2 |
+|---|---|---|---|
+| Observed / predicted, test 2016 | 1.016 | 1.169 | 1.021 |
+| Observed / predicted, test before 2016 | 0.995 | 0.895 | 0.990 |
+| Gini, test | 0.442 | 0.431 | 0.440 |
+| Observed / predicted, OOT diagnostic | 1.051 | 1.194 | 1.046 |
+| Gini, OOT diagnostic | 0.430 | 0.422 | 0.427 |
+
+`recovered = 0.969`. The flag equals 1 for all 2017 loans and, in development, for loans issued from
+December 2015 onward, except 44 in January 2016, so it works as a period indicator. On random test data it also restores most of the Gini
+loss, so part of that pooled test Gini reflects the period, not borrower ranking.
