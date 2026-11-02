@@ -11,7 +11,7 @@ from src.data import PROJECT_ROOT
 
 SCRIPTS = ["lender_fields_sensitivity", "model_v2_experiment", "lifetime_check",
            "lifetime_temporal_check", "champion_feature_psi", "ablation_2016_fields", "ablation_flag", "reason_code_check",
-           "realised_money"]  # confirm_2018 is a one-time check and is left out
+           "realised_money", "training_regime", "prepayment_check"]  # confirm_2018 is a one-time check and is left out
 
 
 def main():

@@ -41,4 +41,18 @@ which favours W0 on ranking.
 
 ## Changes
 
-None yet.
+None. The script ran once under this plan.
+
+## Results
+
+Recorded on 2 November 2026. **Not recommended.**
+
+| ID | Fit loans | Gini | Observed / predicted | Gap |
+|---|---|---|---|---|
+| W0 | 518,879 | 0.402 | 1.059 | 0.059 |
+| W1 | 115,175 | 0.379 | 1.046 | 0.046 |
+| W2 | 139,345 | 0.383 | 1.054 | 0.054 |
+
+W1 had the smaller gap, but its calibration gain was only 0.005 at the worst seed (0.02 required) and it
+lost 0.023 Gini (0.005 allowed). Training on the regime alone does not fix the level on this slice and
+gives up ranking.

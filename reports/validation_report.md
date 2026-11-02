@@ -290,6 +290,21 @@ LightGBM contributions, for 20,000 sampled 2017 loans above the 80% cut-off.
 - Reason frequency is inflated by group size: recently opened accounts sum 11 features.
 - Only seed stability was tested. Wording has had no legal or consumer review.
 
+### 5.12 Regime-only training and early repayment
+
+Both checks were pre-registered and pushed before running; neither uses OOT 2017 or 2018.
+
+**Regime-only training: not recommended.** On H2 2016, training only on loans from 2016 cut the calibration
+gap from 0.059 to 0.046, but gained only 0.005 at the worst seed (0.02 required) and lost 0.023 Gini (0.005
+allowed). Replacing the period signal this way does not solve the PD level.
+
+**Early repayment: not material for ranking, material for what PD means.** 13.75% of test loans were fully
+repaid within 12 months, and the share is nearly flat across risk deciles (12.3–14.7%). Removing them from
+training adds 0.0032 Gini on the remaining test loans (0.005 required). On those loans, however, observed /
+predicted is 1.17 for the current design and 1.01 without early-repaid loans. The PD therefore means
+default among all loans, including those that exit early. It is not the risk of a loan that stays open.
+Partial prepayments remain unobservable.
+
 ## 6. Success criteria
 
 | Criterion | Result | Status |
@@ -330,9 +345,9 @@ conditions. Low: improvement or documentation point.
 |---|---|---|---|---|---|
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
 | F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated; held on early 2018 (0.98) | Keep recalibration; recheck on larger matured cohorts |
-| F3 | Medium | Boosting | PD level is unstable (1.05 on 2017, 0.96 on early 2018) and recalibration moved it further from observed on 2018 | Open | Replace the period signal with an explicit design; add a margin of conservatism |
+| F3 | Medium | Boosting | PD level is unstable (1.05 on 2017, 0.96 on early 2018) and recalibration moved it further from observed on 2018 | Open | Regime-only training did not fix it (section 5.12); keep monitoring and add a margin of conservatism |
 | F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Open | Re-estimate on 2016+ data; do not credit boosting for the lead |
-| F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible | Open | Validate against real payment history |
+| F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible. Early repayment (13.75% of loans) does not affect ranking materially, but defines the PD as covering loans that exit early | Open | Validate against real payment history; state the PD definition |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
 | F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |
 | F8 | Low | Boosting | Tuning and early stopping share a holdout; CatBoost not tuned | Open | Separate tuning holdout; tune CatBoost |
@@ -365,7 +380,7 @@ proposals and were set after seeing results (F11).
 
 | Item | Description |
 |---|---|
-| **Task** | Binary classification: 90+ days past due within 12 months of issue; not lifetime default |
+| **Task** | Binary classification: 90+ days past due within 12 months of issue, among all loans including early exits; not lifetime default |
 | **Intended use** | Ranking individual 36-month consumer loan applicants by risk of default within 12 months, alongside the existing grade; not lifetime risk |
 | **Not intended for** | Fully automated decisions, capital, stress testing, other products or populations |
 | **Algorithm** | LightGBM, partly monotone: constraints on 21 of 78 features |

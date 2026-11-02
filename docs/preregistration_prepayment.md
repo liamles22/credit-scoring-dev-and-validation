@@ -45,4 +45,16 @@ be identified this way, as the data has no payment history, and `test` is develo
 
 ## Changes
 
-None yet.
+None. The script ran once under this plan.
+
+## Results
+
+Recorded on 2 November 2026. **Not material for ranking under the rule.**
+
+Early-repaid loans are 13.75% of `test` (12.6–14.7% by issue year), and their share is nearly flat across
+risk deciles (12.3–14.7%). P1 gains 0.0032 Gini on `test` without them (0.0024 at the worst seed, 0.005
+required), and loses 0.0011 on full `test` (0.442 to 0.441).
+
+Reported without a rule: observed / predicted on `test` without early-repaid loans is 1.167 for P0 and
+1.006 for P1. Loans not repaid early default more often than the current PD implies, so the PD means
+default among all loans, including those that exit early, not default of a loan that stays open.
