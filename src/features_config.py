@@ -16,8 +16,9 @@ TECHNICAL     identifiers, free text, constants
 KEY           used to define the sample or the target, not a feature
 
 TARGET_ONLY_COLS is a separate list on top of the groups: post-origination columns
-that build the 12-month target. `assert_no_leakage` is called on every feature
-matrix before training.
+that build the 12-month target. DERIVED lists features computed from candidates.
+`assert_no_leakage` is called on every feature list before training and accepts
+only CANDIDATE and DERIVED columns.
 """
 
 CANDIDATE = {
@@ -248,20 +249,45 @@ def column_table():
     return pd.DataFrame(rows, columns=["column", "group", "reason"])
 
 
+# Features computed from CANDIDATE columns only. A new derived feature must be declared
+# here, or `assert_no_leakage` rejects it.
+DERIVED = {
+    "credit_hist_months": "months from earliest_cr_line to issue_d (notebook 02)",
+    "has_2016_fields": "any NEW_IN_2016 field reported (scripts/ablation_flag.py)",
+    "loan_to_income": "loan_amnt / annual_inc (src/features.py)",
+    "dti_with_loan": "dti plus this loan's monthly principal, without int_rate (src/features.py)",
+    "revol_bal_to_income": "revol_bal / annual_inc (src/features.py)",
+    "total_balance_to_income": "tot_cur_bal / annual_inc (src/features.py)",
+    "credit_limit_to_income": "total_rev_hi_lim / annual_inc (src/features.py)",
+}
+
+
+class LeakageError(ValueError):
+    """A column list breaks the classification rules."""
+
+
 def check_coverage(raw_columns) -> None:
     """Every raw column is classified exactly once, and nothing extra is listed."""
     listed = [c for cols in GROUPS.values() for c in cols]
     dupes = {c for c in listed if listed.count(c) > 1}
     missing = set(raw_columns) - set(listed)
     extra = set(listed) - set(raw_columns)
-    assert not dupes, f"columns in more than one group: {sorted(dupes)}"
-    assert not missing, f"unclassified columns: {sorted(missing)}"
-    assert not extra, f"listed but not in data: {sorted(extra)}"
-    assert set(TARGET_ONLY_COLS) <= set(listed), "TARGET_ONLY_COLS must be classified columns"
+    if dupes:
+        raise LeakageError(f"columns in more than one group: {sorted(dupes)}")
+    if missing:
+        raise LeakageError(f"unclassified columns: {sorted(missing)}")
+    if extra:
+        raise LeakageError(f"listed but not in data: {sorted(extra)}")
+    if not set(TARGET_ONLY_COLS) <= set(listed):
+        raise LeakageError("TARGET_ONLY_COLS must be classified columns")
 
 
 def assert_no_leakage(feature_columns) -> None:
-    """Fail if a post-origination, target-building, key or target column is a model feature."""
-    forbidden = set(LEAKAGE) | set(TARGET_ONLY_COLS) | set(KEY) | {"target", "target_lifetime"}
-    bad = sorted(set(feature_columns) & forbidden)
-    assert not bad, f"forbidden columns in the feature matrix: {bad}"
+    """Fail unless every feature is a CANDIDATE column or declared in DERIVED.
+
+    An allow-list: lender-score, proxy, leakage, technical, key, target and unknown
+    columns all fail. Raises rather than using `assert`, so it also runs under `python -O`.
+    """
+    bad = sorted(set(feature_columns) - set(CANDIDATE) - set(DERIVED))
+    if bad:
+        raise LeakageError(f"forbidden columns in the feature matrix: {bad}")

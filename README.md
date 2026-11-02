@@ -30,7 +30,9 @@ and moved to 0.96 on early 2018. Boosting fails the original train-to-OOT Gini d
 - **Bank-standard target:** default = 90+ days past due within 12 months (Basel / CRR Art. 178),
   reconstructed from payment data and checked against a second method (96.3% agreement).
 - **Leakage control with an audit trail:** each of 151 raw columns is classified with a
-  reason, and every model feature list is checked by `assert_no_leakage` before training.
+  reason, and every model feature list is checked by `assert_no_leakage` before training. It is an
+  allow-list: only origination-time candidates and declared derived features pass, so the grade,
+  interest rate and location fail too.
 - **Training window chosen by experiment**, on a separate validation slice, never on the
   test year.
 - **Honest benchmark:** the scorecard does not beat the lender's own grade, and this is
@@ -249,8 +251,15 @@ The tests also run on GitHub Actions.
 
 Unit tests on small synthetic examples (no data download needed) cover the target
 reconstruction, metrics (Gini, KS, PSI, IV, calibration tests), leakage control, the
-time split, the points scaling and the PD recalibration:
+time split, the points scaling and the PD recalibration. `tests/test_scoring.py` also checks the
+saved models against notebook 04 when the models and processed data exist locally; elsewhere it is
+skipped:
 
 ```bash
 python -m pytest
 ```
+
+## License
+
+Code and documentation: [MIT](LICENSE). The Lending Club data is not part of this repository and is
+not covered by this license; it is subject to its source's terms.
