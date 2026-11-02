@@ -57,6 +57,12 @@ recommendation, not that any committee approved a model.
 **Out of scope:** 60-month loans, joint applications, regulatory capital, stress testing,
 lifetime expected credit loss, and any population unlike funded Lending Club borrowers.
 
+**Transferability.** Lending Club was a US marketplace lender, and the data holds only loans it approved.
+A bank would also have full bureau files, its own customer data and rejected applications, and in the
+EU it would use local bureau scores and the EBA definition of default. The method of this report
+transfers; the coefficients, cut-offs, PD level and benchmark result do not. Regulatory references in
+section 11 organise the validation and are not a claim of compliance.
+
 ## 3. Data and target
 
 | Item | Decision | Evidence |

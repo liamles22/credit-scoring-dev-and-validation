@@ -129,6 +129,20 @@ Source: Kaggle, *Lending Club* dataset (wordsforthewise), file `accepted_2007_to
 **Important — leakage:** only features known at origination are used
 (no `total_pymnt`, `recoveries`, `last_pymnt_d`, `out_prncp`, `last_fico_range_*`, etc.).
 
+### How far the results transfer
+Lending Club was a US marketplace (P2P) lender: investors funded the loans, and the data covers only
+loans it approved, mostly from 2013–2017, with no recession. A bank scoring its own applicants would
+have more: full credit bureau files rather than the fields Lending Club published, its own customer data
+(account turnover, salary inflows, product history), and rejected applications. A model built on that
+data would likely rank better, and the comparison with the lender's grade would not exist.
+
+US model-risk guidance, the EU AI Act and CRR are used here as a **structure for validation**, not as a
+claim of compliance. Moving to an EU bank would also change the inputs and the target: no FICO but local
+bureau scores, and the EBA definition of default with materiality thresholds instead of a 90-day proxy
+reconstructed from cumulative payments. What transfers is the method: target design, time-based split,
+leakage control, out-of-time validation and findings. Coefficients, cut-offs, the PD level and the
+benchmark result do not.
+
 ## Plan
 
 | # | Stage | Notebook |
