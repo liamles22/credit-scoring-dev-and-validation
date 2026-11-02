@@ -4,7 +4,7 @@
 |---|---|
 | **Models reviewed** | WoE logistic scorecard; LightGBM and CatBoost, plain and monotone |
 | **Purpose** | Rank applicants by risk of early default and estimate the 12-month probability of default at origination |
-| **Evidence** | Notebooks 01–07, `reports/tables/`, unit tests, `docs/preregistration_model_v2.md` |
+| **Evidence** | Notebooks 01–07, `reports/tables/`, unit tests, `docs/preregistration_*.md` |
 | **Out-of-time sample** | 296,484 individual 36-month loans issued in 2017 |
 | **Status** | Portfolio exercise on public data. Not a real bank approval. |
 
@@ -39,6 +39,11 @@ recommendation, not that any committee approved a model.
   Matured 2013–2015 test loans default at 3.2% in 12 months and 14.2% over their life. A LightGBM
   fitted on 2013–2014 ranks 2015 loans below the sub-grade, on lifetime defaults too (section 5.7), so
   lifetime superiority is not shown.
+- **A small 2018 check supports the ranking.** On 42,162 loans from January and February 2018,
+  LightGBM monotone scored Gini 0.450 against 0.423 for the sub-grade, with a lower interval bound
+  of only +0.001. Recalibrated PD stayed in the 0.9–1.1 band at 0.94 (section 5.9).
+- **Boosting's calibration lead was an artefact of the 2016 fields.** Without them, its OOT level
+  falls to the scorecard's 1.19 (section 5.9).
 - **13 findings:** 2 High, 8 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
 
 ## 2. Scope and intended use
@@ -113,8 +118,7 @@ n degrees of freedom on samples the models never saw; on test, LightGBM monotone
 5% boundary (p = 0.050) and CatBoost monotone is rejected.
 
 The boosting advantage over the scorecard on calibration (1.05 against 1.19) should not be read as
-model quality. Missing 2016 fields reveal older loans to boosting, so it can partly learn the issue
-period, while the scorecard neutralises them (F4).
+model quality. The ablation in section 5.9 removes it entirely (F4).
 
 ### 5.3 Stability and robustness
 
@@ -199,6 +203,63 @@ grade depends on the setup. Lifetime performance of the champion on 2017 cannot 
   were already funded by Lending Club. The 12-month profit estimate is rejected for ranking models,
   because it ignores defaults after month 12.
 
+### 5.9 Pre-registered ablation and 2018 check
+
+Conditions were committed first (`docs/preregistration_confirmation_2018.md`).
+
+**Ablation.** Removing the 14 2016 fields from LightGBM monotone raises observed / predicted on 2016
+test loans from 1.02 to 1.17, far beyond the 0.05 rule, and OOT from 1.05 to 1.19 (diagnostic). Test
+Gini falls from 0.442 to 0.431, so the fields also add ranking information. Fields and their missing
+pattern were removed together, so the two effects are not separated.
+
+**2018 check.** January and February 2018, 42,162 loans, 1,495 defaults; no model was refitted.
+
+| Model | Gini | vs sub-grade (95% CI) | Observed / predicted | Recalibrated |
+|---|---|---|---|---|
+| LightGBM monotone | 0.450 | +0.027 (+0.001 to +0.052) | 0.96 | 0.94 |
+| CatBoost monotone | 0.447 | +0.024 (−0.001 to +0.050) | 0.89 | 0.92 |
+| Scorecard | 0.363 | −0.060 (−0.088 to −0.034) | 1.17 | 0.98 |
+| Lending Club sub-grade | 0.423 | benchmark | n/a | n/a |
+
+LightGBM passed both criteria, the first only narrowly. Its recalibration moved PD further from
+observed, and Hosmer–Lemeshow still rejects it, so the method is not confirmed as an improvement. The
+scorecard's recalibration held up (1.17 to 0.98). The cohort is small and short, and the January
+default rate had already been seen, so this is supporting evidence only.
+
+### 5.10 Realised money on matured 2015 loans
+
+Actual lifetime payments minus funded amount, for a LightGBM fitted on 2013–2014, not the champion.
+Funding and operating costs are excluded, returns are not annualised, and declined applicants are
+unobserved.
+
+| Strategy | Approval | Lent, $m | Profit, $m | Return | Lifetime default rate |
+|---|---|---|---|---|---|
+| Approve all | 100% | 3,622 | 237 | 6.6% | 14.9% |
+| Sub-grade | 80% | 2,930 | 206 | 7.0% | 11.9% |
+| LightGBM refit | 80% | 3,004 | 224 | 7.5% | 11.9% |
+| Sub-grade | 70% | 2,584 | 184 | 7.1% | 10.7% |
+| LightGBM refit | 70% | 2,675 | 205 | 7.7% | 10.8% |
+
+The refit earns $18m more than the sub-grade at 80% (95% CI $16–20m) and $22m at 70% ($20–24m), with no
+better default rate. So the gain comes from which loans are approved in money terms, including size
+and pricing, not from better default ranking: this refit ranks defaults below the grade (section 5.7).
+Screening raises return but lowers total profit before costs. At 70% approval, the loans LightGBM
+declines returned 3.4% and those the grade declines returned 5.2%; whether declining pays off depends on
+funding and operating costs that are not in the data.
+
+### 5.11 Reason codes
+
+A prototype groups the 78 features into 16 plain-language factors and gives up to four reasons from
+LightGBM contributions, for 20,000 sampled 2017 loans above the 80% cut-off.
+
+- Contributions add up to the model output, and every sampled loan received four reasons.
+- After refits with two other seeds, the first reason matches for 90% of loans and the four-reason
+  sets overlap by 87%, so about one explanation in ten would change its lead reason.
+- Most frequent reasons: recently opened accounts (66%), use of available credit (48%), debt payments
+  relative to income (42%). Lender-set factors appear for 3.4% of loans and should be replaced.
+- A reason means "raised this applicant's score above the model average", not that fixing it would
+  change the decision. Wording has had no legal or consumer review.
+
 ## 6. Success criteria
 
 | Criterion | Result | Status |
@@ -227,7 +288,8 @@ Recalibration was fitted only on 2016 test loans and re-tested on OOT. Gini is u
 
 A shift fitted on all of 2013–2016 test leaves the scorecard at 1.19, so the most recent cohort
 matters. The notebook-preferred method per model was picked after seeing these OOT results (F11),
-so both methods are shown. A clean confirmation needs a later matured cohort, such as 2018 loans.
+so both methods are shown. The later 2018 check (section 5.9) supports the scorecard's method but not LightGBM's: its shift moved PD
+further from observed.
 
 ## 8. Findings
 
@@ -239,7 +301,7 @@ conditions. Low: improvement or documentation point.
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
 | F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated | Keep recalibration; confirm on a later cohort |
 | F3 | Medium | Boosting | PD moderately under-predicted (1.05) | Within tolerance | Monitor; add a margin of conservatism |
-| F4 | Medium | All | Calibration differs before and from 2016; may reflect the 2016 fields, credit policy or both. Boosting's calibration lead may be an artefact of missing fields revealing the period | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
+| F4 | Medium | All | Calibration differs before and from 2016. Ablation shows boosting's calibration lead depends on the 2016 fields; the underlying level shift is still unexplained | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible | Open | Validate against real payment history |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
 | F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |
@@ -280,10 +342,10 @@ proposals and were set after seeing results (F11).
 | **Inputs** | 78 application and bureau fields known at origination; no state or ZIP code |
 | **Training data** | 592,616 loans issued 2013-07 to 2016-12; 65,847 for early stopping and tuning |
 | **Performance** | Test Gini 0.443; OOT 2017 Gini 0.430, KS 0.313 |
-| **Calibration** | Observed / predicted 1.05 on OOT before recalibration, 1.03–1.04 after |
+| **Calibration** | Observed / predicted 1.05 on OOT, 1.03–1.04 recalibrated; 0.96 and 0.94 on early 2018; level depends on the 2016 fields |
 | **Main drivers** | DTI, loan amount, accounts opened in 24 months, FICO |
 | **Known limits** | Proxy target, no recession, funded loans only, fairness not directly measured |
-| **Explainability** | SHAP values; reason codes still need to be built and tested |
+| **Explainability** | SHAP values and prototype reason codes; first reason stable for 90% of loans across refits; no legal review |
 | **Human oversight** | Required; override and escalation process still needs to be designed |
 
 ## 11. Regulatory mapping
@@ -307,13 +369,13 @@ point 5(b). Regulation (EU) 2026/1744 moved the application date of these obliga
 | Quality management (Art. 17) | Tests and version control | No formal system |
 | Rights impact assessment (Art. 27) | None | Deployer must carry it out |
 | Post-market monitoring (Art. 72) | Proposed monitoring table | Not implemented |
-| Explanation of decisions (Art. 86) | SHAP analysis | No individual explanations |
+| Explanation of decisions (Art. 86) | SHAP analysis, prototype reason codes | No reviewed process or wording |
 
 **US lending rules, the home jurisdiction of this data.** ECOA and Regulation B require specific,
 accurate principal reasons for adverse action (12 CFR 1002.9), and a low score alone is not a reason.
 CFPB Circular 2022-03 says complex algorithms are no exception, and FCRA key factors do not replace
-those reasons. The project has SHAP but no tested reason codes, so the champion could not meet this
-today. The CFPB final rule published on 22 April 2026 removed the effects test from Regulation B, but
+those reasons. The project has a reason-code prototype (section 5.11) without legal review, so the champion could
+not be said to meet this today. The CFPB final rule published on 22 April 2026 removed the effects test from Regulation B, but
 disparate treatment and intentional proxy use remain prohibited, the Fair Housing Act and state laws
 are outside that rule, and its treatment by courts is unsettled. The fairness test here therefore
 stays a risk indicator, not a compliance conclusion. The status of these rules and circulars must be

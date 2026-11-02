@@ -1,0 +1,17 @@
+reason,any_reason,first_reason,lender_side
+Recently opened accounts,0.6598,0.3945,False
+Use of available credit,0.4832,0.1292,False
+Debt payments relative to income,0.4192,0.1184,False
+Recent credit inquiries,0.3936,0.0946,False
+Credit score,0.3884,0.0108,False
+Total balances and credit limits,0.3069,0.0606,False
+Number and type of accounts,0.2496,0.0106,False
+Requested loan amount,0.2441,0.0982,False
+Stated loan purpose,0.2018,0.0529,False
+Length of credit history,0.1708,0.0102,False
+Income level,0.1674,0.0088,False
+Length of employment,0.1179,0.0016,False
+"Delinquency, collection or public record history",0.1108,0.0097,False
+Home ownership,0.0523,0.0,False
+Income verification status,0.0266,0.0,True
+Loan listing or disbursement type,0.0074,0.0,True

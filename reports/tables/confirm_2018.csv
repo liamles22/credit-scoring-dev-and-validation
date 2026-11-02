@@ -1,0 +1,5 @@
+model,loans,defaults,gini,method,diff_vs_benchmark,ci_low,ci_high,obs_pred_original,obs_pred_recalibrated,hl_p_recalibrated
+Lending Club sub-grade,42162,1495,0.42288,,,,,,,
+LightGBM monotone,42162,1495,0.44977,intercept shift,0.02688,0.00076,0.05176,0.95616,0.94228,5e-05
+CatBoost monotone,42162,1495,0.44721,logistic,0.02433,-0.00117,0.04945,0.89467,0.92038,3e-05
+Scorecard,42162,1495,0.36251,logistic,-0.06037,-0.08758,-0.03425,1.1729,0.97875,0.02251

@@ -192,7 +192,14 @@ models fitted mostly on lower-risk years, but the cause is unproven: recalibrati
 **Remediation (notebook 06).** Recalibration fitted on the 2016 test cohort only, re-tested on
 OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.04 (Gini unchanged).
 F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark) stays open.
-The recalibration method was picked after seeing OOT, so a later cohort is needed to confirm it.
+The recalibration method was picked after seeing OOT.
+
+**Pre-registered follow-ups.** On 42,162 loans from January–February 2018, LightGBM reached Gini 0.450
+against 0.423 for the grade (lower interval bound +0.001) and recalibrated observed / predicted 0.94.
+Its recalibration did not help there. Removing the 2016 bureau fields takes its OOT calibration from
+1.05 to 1.19, so its lead over the scorecard depends on those fields. On matured 2015 loans, a
+2013–2014 refit earned more than the grade at 80% approval ($224m vs $206m before costs), despite
+ranking defaults worse. Reason codes exist only as an unreviewed prototype. See the report, section 5.
 
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop

@@ -54,4 +54,28 @@ evidence, not a clean new out-of-time test.
 
 ## Changes
 
-None yet.
+None. Each script ran once under this plan.
+
+## Results
+
+Recorded on 2 November 2026.
+
+**Part A: artefact explanation supported.** Mean observed / predicted on 2016 test loans rose from
+1.016 (C0) to 1.169 (C1), a shift of 0.153 against the 0.05 rule. Without the 14 fields, OOT
+observed / predicted is 1.19 (diagnostic), the scorecard's level. Test Gini fell from 0.442 to 0.431,
+so these fields also carry ranking information. The experiment removes both the fields and their
+missing pattern, so it cannot separate those two effects.
+
+**Part B: LightGBM monotone passed both criteria, narrowly on the first.** Cohort: 42,162 loans, 1,495
+defaults.
+
+| Model | Gini | vs sub-grade (95% CI) | Observed / predicted, original | Recalibrated |
+|---|---|---|---|---|
+| LightGBM monotone | 0.450 | +0.027 (+0.001 to +0.052) | 0.96 | 0.94 |
+| CatBoost monotone | 0.447 | +0.024 (−0.001 to +0.050) | 0.89 | 0.92 |
+| Scorecard | 0.363 | −0.060 (−0.088 to −0.034) | 1.17 | 0.98 |
+| Lending Club sub-grade | 0.423 | benchmark | n/a | n/a |
+
+For LightGBM the intercept shift moved the PD further from observed, from 0.96 to 0.94, though inside
+the band. Hosmer–Lemeshow still rejects its recalibrated PD. Short observation may also lower the
+observed rate in this cohort.

@@ -1,0 +1,8 @@
+strategy,approval_rate,loans,lifetime_default_rate,lent_musd,profit_musd,return_on_lent_pct
+Approve all,1.0,282848,0.149,3621.5143,237.2117,6.5501
+Lending Club sub-grade,0.7,197994,0.1067,2584.303,183.5925,7.1041
+"LightGBM, 2013-2014 refit",0.7,197994,0.1078,2675.3829,205.2544,7.672
+Lending Club sub-grade,0.8,226278,0.1188,2929.6328,206.0289,7.0326
+"LightGBM, 2013-2014 refit",0.8,226278,0.1193,3003.6019,223.8072,7.4513
+Lending Club sub-grade,0.9,254563,0.1319,3265.9436,225.2428,6.8967
+"LightGBM, 2013-2014 refit",0.9,254563,0.1321,3321.8023,235.9546,7.1032
