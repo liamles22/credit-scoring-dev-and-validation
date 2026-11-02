@@ -198,19 +198,21 @@ OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.
 F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark) stays open.
 The recalibration method was picked after seeing OOT.
 
-**Pre-registered follow-ups.** On 42,162 loans from January–February 2018, LightGBM reached Gini 0.450
-against 0.423 for the grade: a borderline result (lower interval bound +0.0008). Recalibrated observed /
-predicted was 0.94, and recalibration did not help it there. Removing the 2016 bureau fields takes OOT
-calibration from 1.05 to 1.19, and one "fields available" flag restores 97% of the shift. So its
-calibration lead over the scorecard is a period signal, not better borrower-level calibration; its
-ranking lead remains (Gini 0.422 vs 0.340). Training only on 2016 loans did not fix the PD level and
-lost 0.023 Gini. Early full repayment (13.75% of loans) barely changes ranking, but the PD covers loans
-that exit early: on the remaining loans observed / predicted is 1.17.
+**What we learned after the OOT verdict.** Eight later checks did not change the verdict but narrowed
+it. Six were pre-registered; those marked exploratory were not.
+- **The ranking lead is thin.** On early 2018 (42,162 loans) LightGBM scored Gini 0.450 against 0.423
+  for the grade, with a lower interval bound of +0.0008. Model v2 features added at most 0.002.
+- **The PD level is not solved.** Boosting's better calibration is a period signal: without the 2016
+  fields it falls to the scorecard's 1.19, and one "fields available" flag restores 97%. Recalibration
+  did not help it on 2018 (0.94), and training on 2016 loans only lost 0.023 Gini without fixing it.
+- **PD covers loans that exit early.** 13.75% of loans are fully repaid within a year. Ranking barely
+  changes, but on the other loans observed / predicted is 1.17.
+- **Money and reason codes (exploratory).** At 80% approval a 2015 refit earned $224m against $206m
+  for the grade before costs, but rates came from the grade and approving everyone earned most ($237m).
+  Reason codes are an unreviewed prototype.
 
-**Exploratory, not pre-registered.** On 2015 loans, a 2013–2014 refit ranked below the grade on the
-12-month target (−0.020 Gini) and lifetime defaults (−0.008). At 80% approval it still earned more than
-the grade ($224m vs $206m before costs), but rates came from the grade, about $5m is extra volume, and
-approving everyone earned the most ($237m). Reason codes exist only as an unreviewed prototype.
+Bottom line: use the champion to rank applicants alongside the grade, not as a PD. Details: section 5.8
+of the [validation report](reports/validation_report.md) and `docs/`.
 
 ### Validation metrics
 - **Discrimination:** Gini, KS (train / test / OOT), Gini drop

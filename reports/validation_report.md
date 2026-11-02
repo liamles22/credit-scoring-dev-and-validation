@@ -42,10 +42,10 @@ recommendation, not that any committee approved a model.
 - **A small 2018 check gives a borderline result on ranking.** On 42,162 loans from January and
   February 2018, LightGBM monotone scored Gini 0.450 against 0.423 for the sub-grade. It passed the
   pre-set rule, but the lower interval bound of +0.0008 is close enough to zero that bootstrap noise
-  alone could change the verdict. Recalibrated PD stayed in the 0.9–1.1 band at 0.94 (section 5.9).
+  alone could change the verdict. Recalibrated PD stayed in the 0.9–1.1 band at 0.94 (section 5.8).
 - **Boosting's calibration lead comes from a period signal.** Without the 2016 fields its OOT level
   falls to the scorecard's 1.19, and one flag showing they are available restores 97% of the lead
-  (section 5.9). It is not evidence of better borrower-level calibration. Its ranking lead over the
+  (section 5.8). It is not evidence of better borrower-level calibration. Its ranking lead over the
   scorecard stays: Gini 0.422 against 0.340.
 - **13 findings:** 2 High, 8 Medium, 3 Low. F1 remains open at High severity; F2 is remediated.
 
@@ -121,7 +121,7 @@ n degrees of freedom on samples the models never saw; on test, LightGBM monotone
 5% boundary (p = 0.050) and CatBoost monotone is rejected.
 
 The boosting advantage over the scorecard on calibration (1.05 against 1.19) should not be read as
-model quality. The ablation in section 5.9 traces it to a period signal (F4).
+model quality. The ablation in section 5.8 traces it to a period signal (F4).
 
 ### 5.3 Stability and robustness
 
@@ -196,114 +196,27 @@ inflated.** This refit is a weaker model than the champion: 172k fitting loans a
 grade depends on the setup. Lifetime performance of the champion on 2017 cannot be measured yet, as
 58% of those loans were still open at the snapshot.
 
-### 5.8 Later experiments
+### 5.8 What later checks showed
 
-- **Model v2:** a pre-registered test of affordability features and time-based tuning adopted
-  nothing. LightGBM gained at most 0.002 Gini on average; the scorecard gained 0.017 but exceeded the
-  calibration limit. See `docs/preregistration_model_v2.md`.
-- **Business impact on 2017 loans (notebook 07):** at 80% approval the default rate is 2.76% for
-  LightGBM monotone and 2.82% for the sub-grade, against 4.04% with no screening. All these loans
-  were already funded by Lending Club. The 12-month profit estimate is rejected for ranking models,
-  because it ignores defaults after month 12.
+Eight checks followed the OOT verdict. None changed it, but together they narrow it. Pre-registered checks
+had their conditions pushed before running; the others are exploratory. Tables and details are in
+Appendix A.
 
-### 5.9 Pre-registered ablation and 2018 check
+| Question | Answer | Kind |
+|---|---|---|
+| Does the ranking lead hold on new loans? | Barely: early 2018 Gini 0.450 against 0.423 for the sub-grade, lower bound +0.0008 | Pre-registered |
+| Is boosting's better calibration real? | No: without the 2016 fields OOT observed / predicted is 1.19, as for the scorecard, and one availability flag restores 97% of the gap. It is a period signal (F4) | Pre-registered |
+| Does recalibration hold on 2018? | For the scorecard, yes (1.17 to 0.98). For LightGBM, no (0.96 to 0.94) (F3) | Pre-registered |
+| Does training on 2016 loans only fix the PD level? | No: gap 0.059 to 0.046, at a cost of 0.023 Gini | Pre-registered |
+| Does early repayment distort the target? | Not the ranking (+0.0032 Gini). But PD covers loans that exit early: on the other loans observed / predicted is 1.17 (F5) | Pre-registered |
+| Do affordability features or time-based tuning help? (model v2) | No: LightGBM gained at most 0.002 Gini; nothing adopted | Pre-registered |
+| What is it worth in money? | 2015 refit at 80% approval: $224m against $206m for the sub-grade before costs, with no better default rate; approving everyone earned most ($237m) | Exploratory |
+| Can declines be explained? | Prototype reason codes; first reason stable for 90% of loans across refits; no legal review | Exploratory |
 
-Conditions were committed first (`docs/preregistration_confirmation_2018.md`).
-
-**Ablation.** Removing the 14 2016 fields from LightGBM monotone raises observed / predicted on 2016
-test loans from 1.02 to 1.17, far beyond the 0.05 rule, and OOT from 1.05 to 1.19 (diagnostic). Test
-Gini falls from 0.442 to 0.431, so the fields also add ranking information, though OOT Gini stays at
-0.422 against 0.340 for the scorecard.
-
-A follow-up added one flag, "fields are available", to the model without the fields. Its conditions were
-pushed before the run (`docs/preregistration_ablation_flag.md`).
-
-| LightGBM monotone | All fields | No fields | No fields + flag |
-|---|---|---|---|
-| Observed / predicted, 2016 test | 1.016 | 1.169 | 1.021 |
-| Gini, test | 0.442 | 0.431 | 0.440 |
-| Observed / predicted, OOT diagnostic | 1.051 | 1.194 | 1.046 |
-| Gini, OOT diagnostic | 0.430 | 0.422 | 0.427 |
-
-The flag restores 97% of the calibration shift, so the rule's conclusion is **mainly the availability
-pattern**. The flag is 1 for loans issued from December 2015 onward, except 44 in January 2016, and 0 before, so it works as a period indicator. The
-content of the 14 fields adds little: about 0.002–0.003 Gini here. The flag's Gini gain on the pooled test
-sample also partly reflects separating periods, not ranking borrowers.
-
-**2018 check.** January and February 2018, 42,162 loans, 1,495 defaults; no model was refitted.
-
-| Model | Gini | vs sub-grade (95% CI) | Observed / predicted | Recalibrated |
-|---|---|---|---|---|
-| LightGBM monotone | 0.450 | +0.027 (+0.001 to +0.052) | 0.96 | 0.94 |
-| CatBoost monotone | 0.447 | +0.024 (−0.001 to +0.050) | 0.89 | 0.92 |
-| Scorecard | 0.363 | −0.060 (−0.088 to −0.034) | 1.17 | 0.98 |
-| Lending Club sub-grade | 0.423 | benchmark | n/a | n/a |
-
-LightGBM met both pre-set criteria, but the first is a borderline result: the lower bound is +0.0008,
-within the likely Monte Carlo error of a 1,000-resample bootstrap, so another bootstrap seed could
-reverse the verdict. Its recalibration moved PD further from
-observed, and Hosmer–Lemeshow still rejects it, so the method is not confirmed as an improvement. The
-scorecard's recalibration held up (1.17 to 0.98). The cohort is small and short, and the January
-default rate had already been seen, so this is supporting evidence only.
-
-### 5.10 Realised money on matured 2015 loans
-
-Actual lifetime payments minus funded amount, for a LightGBM fitted on 2013–2014, not the champion.
-Funding and operating costs are excluded, returns are not annualised, and declined applicants are
-unobserved. This section and 5.11 were not pre-registered.
-
-| Strategy | Approval | Lent, $m | Profit, $m | Return | Lifetime default rate |
-|---|---|---|---|---|---|
-| Approve all | 100% | 3,622 | 237 | 6.6% | 14.9% |
-| Sub-grade | 80% | 2,930 | 206 | 7.0% | 11.9% |
-| LightGBM refit | 80% | 3,004 | 224 | 7.5% | 11.9% |
-| Sub-grade | 70% | 2,584 | 184 | 7.1% | 10.7% |
-| LightGBM refit | 70% | 2,675 | 205 | 7.7% | 10.8% |
-
-The refit earns $18m more than the sub-grade at 80% (95% CI $16–20m) and $22m at 70% ($20–24m), with no
-better default rate. So the gain comes from which loans are approved in money terms, including size
-and pricing, not from better default ranking: this refit ranks defaults below the grade (section 5.7).
-This is not a clean measure of model value. Rates were set from the grade, so the refit may be
-keeping loans that policy underpriced, and repricing by the model would change that. About $5m of the
-$18m is volume, as the refit lends $74m more. The interval covers loan sampling only: one model, seed
-and year. Its parameters and directions came from a window including 2015.
-
-Screening raises return but lowers total profit before costs, so approving everyone still earns the
-most in dollars ($237m). The evidence favours higher return, not higher total profit. At 70% approval, the loans LightGBM
-declines returned 3.4% and those the grade declines returned 5.2%; whether declining pays off depends on
-funding and operating costs that are not in the data.
-
-### 5.11 Reason codes
-
-A prototype groups the 78 features into 16 plain-language factors and gives up to four reasons from
-LightGBM contributions, for 20,000 sampled 2017 loans above the 80% cut-off.
-
-- Contributions add up to the model output, and every sampled loan received four reasons.
-- After refits with two other seeds, the first reason matches for 90% of loans and the four-reason
-  sets overlap by 87%, so about one explanation in ten would change its lead reason.
-- Most frequent reasons: recently opened accounts (66%), use of available credit (48%), debt payments
-  relative to income (42%). Lender-set factors appear for 3.4% of loans and should be replaced.
-- A reason means "raised this applicant's score above the model average", not that fixing it would
-  change the decision; that has not been tested.
-- Text names a factor without a direction. `loan_amnt` has no monotone constraint, so the 24% of
-  declines citing the amount have no clear meaning for the applicant.
-- Reason frequency is inflated by group size: recently opened accounts sum 11 features.
-- Only seed stability was tested. Wording has had no legal or consumer review.
-
-### 5.12 Regime-only training and early repayment
-
-Both checks were pre-registered and pushed before running; neither uses OOT 2017 or 2018.
-
-**Regime-only training: not recommended.** On H2 2016, training only on loans from 2016 cut the calibration
-gap from 0.059 to 0.046, but gained only 0.005 at the worst seed (0.02 required) and lost 0.023 Gini (0.005
-allowed). Replacing the period signal this way does not solve the PD level.
-
-**Early repayment: not material for ranking, material for what PD means.** 13.75% of test loans were fully
-repaid within 12 months, and the share is nearly flat across risk deciles (12.3–14.7%). Removing them from
-training adds 0.0032 Gini on the remaining test loans (0.005 required). On those loans, however, observed /
-predicted is 1.17 for the current design and 1.01 without early-repaid loans. The PD therefore means
-default among all loans, including those that exit early. It is not the risk of a loan that stays open.
-Partial prepayments remain unobservable.
+**What we learned.** LightGBM monotone ranks somewhat better than the lender's grade, but the margin is
+thin and depends on the setup. Its PD level is not reliable: the apparent calibration advantage comes
+from the period, and neither recalibration nor regime-only training fixed it. The verdict stays
+"conditional champion, for ranking only, alongside the grade".
 
 ## 6. Success criteria
 
@@ -333,7 +246,7 @@ Recalibration was fitted only on 2016 test loans and re-tested on OOT. Gini is u
 
 A shift fitted on all of 2013–2016 test leaves the scorecard at 1.19, so the most recent cohort
 matters. The notebook-preferred method per model was picked after seeing these OOT results (F11),
-so both methods are shown. The later 2018 check (section 5.9) supports the scorecard's method but not LightGBM's: its shift moved PD
+so both methods are shown. The later 2018 check (section 5.8) supports the scorecard's method but not LightGBM's: its shift moved PD
 further from observed.
 
 ## 8. Findings
@@ -345,7 +258,7 @@ conditions. Low: improvement or documentation point.
 |---|---|---|---|---|---|
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
 | F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated; held on early 2018 (0.98) | Keep recalibration; recheck on larger matured cohorts |
-| F3 | Medium | Boosting | PD level is unstable (1.05 on 2017, 0.96 on early 2018) and recalibration moved it further from observed on 2018 | Open | Regime-only training did not fix it (section 5.12); keep monitoring and add a margin of conservatism |
+| F3 | Medium | Boosting | PD level is unstable (1.05 on 2017, 0.96 on early 2018) and recalibration moved it further from observed on 2018 | Open | Regime-only training did not fix it (section 5.8); keep monitoring and add a margin of conservatism |
 | F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Open | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible. Early repayment (13.75% of loans) does not affect ranking materially, but defines the PD as covering loans that exit early | Open | Validate against real payment history; state the PD definition |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
@@ -419,7 +332,7 @@ point 5(b). Regulation (EU) 2026/1744 moved the application date of these obliga
 **US lending rules, the home jurisdiction of this data.** ECOA and Regulation B require specific,
 accurate principal reasons for adverse action (12 CFR 1002.9), and a low score alone is not a reason.
 CFPB Circular 2022-03 says complex algorithms are no exception, and FCRA key factors do not replace
-those reasons. The project has a reason-code prototype (section 5.11) without legal review, so the champion could
+those reasons. The project has a reason-code prototype (Appendix A.4) without legal review, so the champion could
 not be said to meet this today. The CFPB final rule published on 22 April 2026 removed the effects test from Regulation B, but
 disparate treatment and intentional proxy use remain prohibited, the Fair Housing Act and state laws
 are outside that rule, and its treatment by courts is unsettled. The fairness test here therefore
@@ -437,6 +350,117 @@ validation is the one this project cannot meet (F10).
 **EU: CRR.** The default definition follows Art. 178 in spirit. Art. 180 expects at least five
 years of data for retail PD estimation under internal models; the 42-month window would not meet
 that, so the model is not suitable for capital use.
+
+## Appendix A. Details of later checks
+
+### A.1 Model v2 and business impact
+
+- **Model v2:** a pre-registered test of affordability features and time-based tuning adopted
+  nothing. LightGBM gained at most 0.002 Gini on average; the scorecard gained 0.017 but exceeded the
+  calibration limit. See `docs/preregistration_model_v2.md`.
+- **Business impact on 2017 loans (notebook 07):** at 80% approval the default rate is 2.76% for
+  LightGBM monotone and 2.82% for the sub-grade, against 4.04% with no screening. All these loans
+  were already funded by Lending Club. The 12-month profit estimate is rejected for ranking models,
+  because it ignores defaults after month 12.
+
+### A.2 Pre-registered ablation and 2018 check
+
+Conditions were committed first (`docs/preregistration_confirmation_2018.md`).
+
+**Ablation.** Removing the 14 2016 fields from LightGBM monotone raises observed / predicted on 2016
+test loans from 1.02 to 1.17, far beyond the 0.05 rule, and OOT from 1.05 to 1.19 (diagnostic). Test
+Gini falls from 0.442 to 0.431, so the fields also add ranking information, though OOT Gini stays at
+0.422 against 0.340 for the scorecard.
+
+A follow-up added one flag, "fields are available", to the model without the fields. Its conditions were
+pushed before the run (`docs/preregistration_ablation_flag.md`).
+
+| LightGBM monotone | All fields | No fields | No fields + flag |
+|---|---|---|---|
+| Observed / predicted, 2016 test | 1.016 | 1.169 | 1.021 |
+| Gini, test | 0.442 | 0.431 | 0.440 |
+| Observed / predicted, OOT diagnostic | 1.051 | 1.194 | 1.046 |
+| Gini, OOT diagnostic | 0.430 | 0.422 | 0.427 |
+
+The flag restores 97% of the calibration shift, so the rule's conclusion is **mainly the availability
+pattern**. The flag is 1 for loans issued from December 2015 onward, except 44 in January 2016, and 0 before, so it works as a period indicator. The
+content of the 14 fields adds little: about 0.002–0.003 Gini here. The flag's Gini gain on the pooled test
+sample also partly reflects separating periods, not ranking borrowers.
+
+**2018 check.** January and February 2018, 42,162 loans, 1,495 defaults; no model was refitted.
+
+| Model | Gini | vs sub-grade (95% CI) | Observed / predicted | Recalibrated |
+|---|---|---|---|---|
+| LightGBM monotone | 0.450 | +0.027 (+0.001 to +0.052) | 0.96 | 0.94 |
+| CatBoost monotone | 0.447 | +0.024 (−0.001 to +0.050) | 0.89 | 0.92 |
+| Scorecard | 0.363 | −0.060 (−0.088 to −0.034) | 1.17 | 0.98 |
+| Lending Club sub-grade | 0.423 | benchmark | n/a | n/a |
+
+LightGBM met both pre-set criteria, but the first is a borderline result: the lower bound is +0.0008,
+within the likely Monte Carlo error of a 1,000-resample bootstrap, so another bootstrap seed could
+reverse the verdict. Its recalibration moved PD further from
+observed, and Hosmer–Lemeshow still rejects it, so the method is not confirmed as an improvement. The
+scorecard's recalibration held up (1.17 to 0.98). The cohort is small and short, and the January
+default rate had already been seen, so this is supporting evidence only.
+
+### A.3 Realised money on matured 2015 loans
+
+Actual lifetime payments minus funded amount, for a LightGBM fitted on 2013–2014, not the champion.
+Funding and operating costs are excluded, returns are not annualised, and declined applicants are
+unobserved. This section and A.4 were not pre-registered.
+
+| Strategy | Approval | Lent, $m | Profit, $m | Return | Lifetime default rate |
+|---|---|---|---|---|---|
+| Approve all | 100% | 3,622 | 237 | 6.6% | 14.9% |
+| Sub-grade | 80% | 2,930 | 206 | 7.0% | 11.9% |
+| LightGBM refit | 80% | 3,004 | 224 | 7.5% | 11.9% |
+| Sub-grade | 70% | 2,584 | 184 | 7.1% | 10.7% |
+| LightGBM refit | 70% | 2,675 | 205 | 7.7% | 10.8% |
+
+The refit earns $18m more than the sub-grade at 80% (95% CI $16–20m) and $22m at 70% ($20–24m), with no
+better default rate. So the gain comes from which loans are approved in money terms, including size
+and pricing, not from better default ranking: this refit ranks defaults below the grade (section 5.7).
+This is not a clean measure of model value. Rates were set from the grade, so the refit may be
+keeping loans that policy underpriced, and repricing by the model would change that. About $5m of the
+$18m is volume, as the refit lends $74m more. The interval covers loan sampling only: one model, seed
+and year. Its parameters and directions came from a window including 2015.
+
+Screening raises return but lowers total profit before costs, so approving everyone still earns the
+most in dollars ($237m). The evidence favours higher return, not higher total profit. At 70% approval, the loans LightGBM
+declines returned 3.4% and those the grade declines returned 5.2%; whether declining pays off depends on
+funding and operating costs that are not in the data.
+
+### A.4 Reason codes
+
+A prototype groups the 78 features into 16 plain-language factors and gives up to four reasons from
+LightGBM contributions, for 20,000 sampled 2017 loans above the 80% cut-off.
+
+- Contributions add up to the model output, and every sampled loan received four reasons.
+- After refits with two other seeds, the first reason matches for 90% of loans and the four-reason
+  sets overlap by 87%, so about one explanation in ten would change its lead reason.
+- Most frequent reasons: recently opened accounts (66%), use of available credit (48%), debt payments
+  relative to income (42%). Lender-set factors appear for 3.4% of loans and should be replaced.
+- A reason means "raised this applicant's score above the model average", not that fixing it would
+  change the decision; that has not been tested.
+- Text names a factor without a direction. `loan_amnt` has no monotone constraint, so the 24% of
+  declines citing the amount have no clear meaning for the applicant.
+- Reason frequency is inflated by group size: recently opened accounts sum 11 features.
+- Only seed stability was tested. Wording has had no legal or consumer review.
+
+### A.5 Regime-only training and early repayment
+
+Both checks were pre-registered and pushed before running; neither uses OOT 2017 or 2018.
+
+**Regime-only training: not recommended.** On H2 2016, training only on loans from 2016 cut the calibration
+gap from 0.059 to 0.046, but gained only 0.005 at the worst seed (0.02 required) and lost 0.023 Gini (0.005
+allowed). Replacing the period signal this way does not solve the PD level.
+
+**Early repayment: not material for ranking, material for what PD means.** 13.75% of test loans were fully
+repaid within 12 months, and the share is nearly flat across risk deciles (12.3–14.7%). Removing them from
+training adds 0.0032 Gini on the remaining test loans (0.005 required). On those loans, however, observed /
+predicted is 1.17 for the current design and 1.01 without early-repaid loans. The PD therefore means
+default among all loans, including those that exit early. It is not the risk of a loan that stays open.
+Partial prepayments remain unobservable.
 
 ## Sources
 
