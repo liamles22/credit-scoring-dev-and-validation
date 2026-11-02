@@ -195,13 +195,14 @@ models fitted mostly on lower-risk years, but the cause is unproven: recalibrati
 
 **Remediation (notebook 06).** Recalibration fitted on the 2016 test cohort only, re-tested on
 OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.04 (Gini unchanged).
-F2 remediated, F3 within tolerance, F4 mitigated; F1 (scorecard below benchmark) stays open.
-The recalibration method was picked after seeing OOT.
+F2 remediated and held on early 2018. F1 (scorecard below benchmark), F3 and F4 stay open: the
+LightGBM level did not hold on 2018 (see below). The recalibration method was picked after seeing OOT.
 
 **What we learned after the OOT verdict.** Eight later checks did not change the verdict but narrowed
-it. Six were pre-registered; those marked exploratory were not.
-- **The ranking lead is thin.** On early 2018 (42,162 loans) LightGBM scored Gini 0.450 against 0.423
-  for the grade, with a lower interval bound of +0.0008. Model v2 features added at most 0.002.
+it. Six were pre-registered (2018 confirmation, two ablations of the 2016 fields, 2016-only training,
+early repayment, model v2); money and reason codes were exploratory.
+- **The ranking lead is real but thin.** On 2017 LightGBM beats the grade by +0.019 Gini (95% CI +0.011
+  to +0.028). On early 2018 (42,162 loans) it scored 0.450 against 0.423, with a lower bound of +0.0008. Model v2 features added at most 0.002.
 - **The PD level is not solved.** Boosting's better calibration is a period signal: without the 2016
   fields it falls to the scorecard's 1.19, and one "fields available" flag restores 97%. Recalibration
   did not help it on 2018 (0.94), and training on 2016 loans only lost 0.023 Gini without fixing it.

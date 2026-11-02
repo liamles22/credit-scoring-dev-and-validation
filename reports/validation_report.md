@@ -198,23 +198,24 @@ grade depends on the setup. Lifetime performance of the champion on 2017 cannot 
 
 ### 5.8 What later checks showed
 
-Eight checks followed the OOT verdict. None changed it, but together they narrow it. Pre-registered checks
-had their conditions pushed before running; the others are exploratory. Tables and details are in
-Appendix A.
+Eight checks followed the OOT verdict, one row each below. None changed it, but together they narrow it.
+The six pre-registered checks had their conditions pushed before running (files in `docs/`); the other
+two are exploratory. Tables and details are in Appendix A.
 
-| Question | Answer | Kind |
-|---|---|---|
-| Does the ranking lead hold on new loans? | Barely: early 2018 Gini 0.450 against 0.423 for the sub-grade, lower bound +0.0008 | Pre-registered |
-| Is boosting's better calibration real? | No: without the 2016 fields OOT observed / predicted is 1.19, as for the scorecard, and one availability flag restores 97% of the gap. It is a period signal (F4) | Pre-registered |
-| Does recalibration hold on 2018? | For the scorecard, yes (1.17 to 0.98). For LightGBM, no (0.96 to 0.94) (F3) | Pre-registered |
-| Does training on 2016 loans only fix the PD level? | No: gap 0.059 to 0.046, at a cost of 0.023 Gini | Pre-registered |
-| Does early repayment distort the target? | Not the ranking (+0.0032 Gini). But PD covers loans that exit early: on the other loans observed / predicted is 1.17 (F5) | Pre-registered |
-| Do affordability features or time-based tuning help? (model v2) | No: LightGBM gained at most 0.002 Gini; nothing adopted | Pre-registered |
-| What is it worth in money? | 2015 refit at 80% approval: $224m against $206m for the sub-grade before costs, with no better default rate; approving everyone earned most ($237m) | Exploratory |
-| Can declines be explained? | Prototype reason codes; first reason stable for 90% of loans across refits; no legal review | Exploratory |
+| # | Check | Answer | Kind |
+|---|---|---|---|
+| 1 | 2018 confirmation: does the lead hold, and does recalibration? | Ranking barely: Gini 0.450 against 0.423 for the sub-grade, lower bound +0.0008. Recalibration held for the scorecard (1.17 to 0.98), not for LightGBM (0.96 to 0.94) (F3) | Pre-registered, `preregistration_confirmation_2018.md` part B |
+| 2 | Ablation of the 14 2016 fields | Without them OOT observed / predicted is 1.19, as for the scorecard; test Gini falls by 0.011 | Pre-registered, same file, part A |
+| 3 | Ablation with an availability flag | The flag alone restores 97% of the calibration shift, so boosting's calibration lead is a period signal (F4) | Pre-registered, `preregistration_ablation_flag.md` |
+| 4 | Training on 2016 loans only | Gap 0.059 to 0.046, not enough, at a cost of 0.023 Gini | Pre-registered, `preregistration_2016_training.md` |
+| 5 | Early full repayment | Not material for ranking (+0.0032 Gini). PD covers loans that exit early: on the other loans observed / predicted is 1.17 (F5) | Pre-registered, `preregistration_prepayment.md` |
+| 6 | Model v2: affordability features, time-based tuning | LightGBM gained at most 0.002 Gini; nothing adopted | Pre-registered, `preregistration_model_v2.md` |
+| 7 | Realised money on 2015 loans | Refit at 80% approval: $224m against $206m for the sub-grade before costs, with no better default rate; approving everyone earned most ($237m) | Exploratory |
+| 8 | Reason codes | Prototype; first reason stable for 90% of loans across refits; no legal review | Exploratory |
 
-**What we learned.** LightGBM monotone ranks somewhat better than the lender's grade, but the margin is
-thin and depends on the setup. Its PD level is not reliable: the apparent calibration advantage comes
+**What we learned.** LightGBM monotone ranks better than the lender's grade on 2017, by +0.019 Gini
+(95% CI +0.011 to +0.028), but the margin is thin: on early 2018 its lower bound was +0.0008, and a
+2013–2014 refit ranked 2015 loans below the grade (section 5.7). Its PD level is not reliable: the apparent calibration advantage comes
 from the period, and neither recalibration nor regime-only training fixed it. The verdict stays
 "conditional champion, for ranking only, alongside the grade".
 
