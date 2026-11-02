@@ -329,9 +329,9 @@ conditions. Low: improvement or documentation point.
 | ID | Severity | Models | Finding | Status | Action |
 |---|---|---|---|---|---|
 | F1 | High | Scorecard | Ranks below the benchmark (−0.071 Gini) | Open | Do not use as primary score |
-| F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated | Keep recalibration; confirm on a later cohort |
-| F3 | Medium | Boosting | PD moderately under-predicted (1.05) | Within tolerance | Monitor; add a margin of conservatism |
-| F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Mitigated | Re-estimate on 2016+ data; do not credit boosting for the lead |
+| F2 | High | Scorecard | PD under-predicted on OOT (1.19) | Remediated; held on early 2018 (0.98) | Keep recalibration; recheck on larger matured cohorts |
+| F3 | Medium | Boosting | PD level is unstable (1.05 on 2017, 0.96 on early 2018) and recalibration moved it further from observed on 2018 | Open | Replace the period signal with an explicit design; add a margin of conservatism |
+| F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Open | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible | Open | Validate against real payment history |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
 | F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |

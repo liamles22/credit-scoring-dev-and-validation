@@ -21,13 +21,16 @@ Out-of-time year 2017, 296,484 loans never used in development:
 ![Model comparison: Gini on test and on out-of-time 2017](reports/figures/05_discrimination.png)
 
 "Partly monotone" means constraints on 21 of 78 features. Target: default within 12 months, not over
-the 36-month term, and a 2015 time check shows no lifetime lead over the grade. Boosting fails the original train-to-OOT Gini drop limit (9.2–15.8 pp against 5 pp).
+the 36-month term. A LightGBM fitted on 2013–2014 ranked 2015 loans below the grade on both the
+12-month (−0.020 Gini) and lifetime (−0.008) targets, so the lead over the grade depends on the setup.
+Boosting's calibration of 1.05 is not better borrower-level calibration: it relies on a period signal
+and moved to 0.96 on early 2018. Boosting fails the original train-to-OOT Gini drop limit (9.2–15.8 pp against 5 pp).
 
 **What makes this project different**
 - **Bank-standard target:** default = 90+ days past due within 12 months (Basel / CRR Art. 178),
   reconstructed from payment data and checked against a second method (96.3% agreement).
 - **Leakage control with an audit trail:** each of 151 raw columns is classified with a
-  reason, and every feature matrix is checked before training.
+  reason, and every model feature list is checked by `assert_no_leakage` before training.
 - **Training window chosen by experiment**, on a separate validation slice, never on the
   test year.
 - **Honest benchmark:** the scorecard does not beat the lender's own grade, and this is
@@ -35,8 +38,9 @@ the 36-month term, and a 2015 time check shows no lifetime lead over the grade. 
 - **Validation report:** 13 findings rated High / Medium / Low, including this project's own
   weaknesses, a recommendation per model, a model card and an EU AI Act gap analysis:
   [reports/validation_report.md](reports/validation_report.md).
-- **Remediation loop:** PD under-prediction fixed by recalibrating on the most recent matured
-  cohort (scorecard observed / predicted 1.19 → 1.01 on OOT), re-tested on OOT.
+- **Remediation loop:** recalibration on the most recent matured cohort held up for the scorecard
+  (observed / predicted 1.19 → 1.01 on OOT, 0.98 on early 2018), but not for LightGBM (0.96 → 0.94 on
+  early 2018), so the champion's PD level remains an open problem.
 
 **Notebooks:** [01 data and target](notebooks/01_data_eda.ipynb) →
 [02 time split](notebooks/02_split.ipynb) →
