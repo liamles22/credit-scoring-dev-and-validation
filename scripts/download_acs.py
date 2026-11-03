@@ -35,7 +35,10 @@ def api_key() -> str:
 def fetch(geo: dict) -> pd.DataFrame:
     query = {"get": ",".join(ACS_COLUMNS), **geo, "key": api_key()}
     with urllib.request.urlopen(f"{URL}?{urllib.parse.urlencode(query)}", timeout=300) as r:
-        rows = json.loads(r.read().decode("utf-8"))
+        text = r.read().decode("utf-8")
+    if "Invalid Key" in text:
+        raise SystemExit("Census API: invalid key. A new key works only after the activation link in its email.")
+    rows = json.loads(text)
     return pd.DataFrame(rows[1:], columns=rows[0])
 
 

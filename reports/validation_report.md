@@ -175,6 +175,38 @@ limited proxy, 19 states with at least 5,000 OOT loans were compared at an 85% a
 
 Passing the four-fifths rule by state does not show the absence of discrimination (F7).
 
+**ZIP3 proxy with census data.** Pre-registered in `docs/preregistration_fairness_zip3.md`. Each OOT loan
+is weighted by the White, Black and Hispanic population shares of its 3-digit ZIP area (ACS 2013–2017;
+99.96% of loans matched), and every score approves the same 83.8% of loans.
+
+| Score | AIR, Black (95% CI) | AIR, Hispanic (95% CI) |
+|---|---|---|
+| LightGBM monotone | 0.996 (0.993–0.998) | 0.994 (0.991–0.997) |
+| Scorecard | 0.995 (0.991–0.999) | 0.998 (0.993–1.002) |
+| Sub-grade | 0.992 (0.988–0.996) | 0.994 (0.989–0.998) |
+
+Approval is Green under the rule, and the champion adds no disparity over the grade. This is weak
+evidence: group membership comes only from area composition, so differences within an area are
+invisible and the ratios are pulled towards 1.
+
+Calibration by area is the main result:
+
+| Minority-share quintile | Mean minority share | Default rate | Observed / predicted, LightGBM | Scorecard |
+|---|---|---|---|---|
+| 1 | 8% | 3.66% | 0.96 | 1.07 |
+| 2 | 18% | 3.86% | 1.02 | 1.16 |
+| 3 | 29% | 3.99% | 1.05 | 1.19 |
+| 4 | 41% | 4.21% | 1.09 | 1.24 |
+| 5 | 62% | 4.48% | 1.14 | 1.28 |
+
+Both models **understate** risk more as an area's minority share rises; for LightGBM the gap between
+the first and fifth quintile is −0.18 (95% CI −0.25 to −0.09). Under the pre-set rule this is not a
+concern for applicants, because their risk is not overstated. It matters in two other ways. Approved
+loans in high-minority areas carry more risk than the PD shows, so one recalibration for everyone leaves
+them under-provisioned. And the obvious fix, adjusting PD by location, would use a proxy for race and
+risks redlining. The cause, such as local economic conditions or borrower factors missing from the
+data, should be found instead. AIR within income quintiles (0.992–1.000) shows no pattern.
+
 ### 5.7 Lifetime defaults on matured loans
 
 The models are trained on 12-month default, so this checks the product's whole term. The first table
@@ -204,8 +236,8 @@ grade depends on the setup. Lifetime performance of the champion on 2017 cannot 
 
 ### 5.8 What later checks showed
 
-Eight checks followed the OOT verdict, one row each below. None changed it, but together they narrow it.
-The six pre-registered checks had their conditions pushed before running (files in `docs/`); the other
+Nine checks followed the OOT verdict, one row each below. None changed it, but together they narrow it.
+The seven pre-registered checks had their conditions pushed before running (files in `docs/`); the other
 two are exploratory. Tables and details are in Appendix A.
 
 | # | Check | Answer | Kind |
@@ -216,13 +248,15 @@ two are exploratory. Tables and details are in Appendix A.
 | 4 | Training on 2016 loans only | Gap 0.059 to 0.046, not enough, at a cost of 0.023 Gini | Pre-registered, `preregistration_2016_training.md` |
 | 5 | Early full repayment | Not material for ranking (+0.0032 Gini). PD covers loans that exit early: on the other loans observed / predicted is 1.17 (F5) | Pre-registered, `preregistration_prepayment.md` |
 | 6 | Model v2: affordability features, time-based tuning | LightGBM gained at most 0.002 Gini; nothing adopted | Pre-registered, `preregistration_model_v2.md` |
-| 7 | Realised money on 2015 loans | Refit at 80% approval: $224m against $206m for the sub-grade before costs, with no better default rate; approving everyone earned most ($237m) | Exploratory |
-| 8 | Reason codes | Prototype; first reason stable for 90% of loans across refits; no legal review | Exploratory |
+| 7 | ZIP3 fairness proxy with census data | Approval ratios 0.99 or above and no added disparity over the grade, but a weak test. PD understates risk more in high-minority areas: observed / predicted 0.96 to 1.14 (F7) | Pre-registered, `preregistration_fairness_zip3.md` |
+| 8 | Realised money on 2015 loans | Refit at 80% approval: $224m against $206m for the sub-grade before costs, with no better default rate; approving everyone earned most ($237m) | Exploratory |
+| 9 | Reason codes | Prototype; first reason stable for 90% of loans across refits; no legal review | Exploratory |
 
 **What we learned.** LightGBM monotone ranks better than the lender's grade on 2017, by +0.019 Gini
 (95% CI +0.011 to +0.028), but the margin is thin: on early 2018 its lower bound was +0.0008, and a
 2013–2014 refit ranked 2015 loans below the grade (section 5.7). Its PD level is not reliable: the apparent calibration advantage comes
-from the period, and neither recalibration nor regime-only training fixed it. The verdict stays
+from the period, and neither recalibration nor regime-only training fixed it. It also understates
+risk more in areas with a higher minority share. The verdict stays
 "conditional champion, for ranking only, alongside the grade".
 
 ## 6. Success criteria
@@ -269,7 +303,7 @@ conditions. Low: improvement or documentation point.
 | F4 | Medium | All | Calibration differs before and from 2016. Boosting's lead is a period signal: one availability flag restores 97% of it. The underlying level shift is still unexplained | Open | Re-estimate on 2016+ data; do not credit boosting for the lead |
 | F5 | Medium | All | Target is reconstructed; cured delinquencies are invisible. Early repayment (13.75% of loans) does not affect ranking materially, but defines the PD as covering loans that exit early | Open | Validate against real payment history; state the PD definition |
 | F6 | Medium | Boosting | Constraints cover 21 of 78 features, with data-derived directions; `loan_amnt` is a top driver, absent from the scorecard and unconstrained | Open | Business review of directions and of the `loan_amnt` shape |
-| F7 | Medium | All | Fairness not directly measured; state calibration varies | Open | Fair-lending analysis before use |
+| F7 | Medium | All | Fairness only proxied. By ZIP3 and census data, AIR is 0.99 or above, but PD understates risk as an area's minority share rises (observed / predicted 0.96 to 1.14); state calibration varies | Open | Find the cause of the area gap without putting location in the model; fair-lending analysis with individual-level proxies before use |
 | F8 | Low | Boosting | Tuning and early stopping share a holdout; CatBoost not tuned | Open | Separate tuning holdout; tune CatBoost |
 | F9 | Low | All | No recession in window; funded loans only; 42 months of development data | Open | Document; add downturn and reject-inference work |
 | F10 | Medium | All | Validation is not independent: same author | Open | Real review by an independent party |
@@ -291,7 +325,8 @@ matured cohort (F11).
 | Feature PSI, all 78 champion inputs | Quarterly | > 0.10 | > 0.25 |
 | Gini of cohorts after 12 months | Quarterly | Drop > 3 pp | Drop > 5 pp |
 | Observed / predicted PD | Quarterly | Outside 0.9–1.1 | Outside 0.8–1.2 |
-| Adverse impact ratio by state | Semi-annually | < 0.9 | < 0.8 |
+| Adverse impact ratio by state and by ZIP3 proxy | Semi-annually | < 0.9 | < 0.8 |
+| Observed / predicted, gap between lowest and highest minority-share quintile | Semi-annually | > 0.10 | > 0.20 |
 
 Red triggers a model review. Two consecutive ambers trigger recalibration. These thresholds are
 proposals and were set after seeing results (F11).
@@ -309,7 +344,7 @@ proposals and were set after seeing results (F11).
 | **Performance** | Test Gini 0.443; OOT 2017 Gini 0.430, KS 0.313 |
 | **Calibration** | Observed / predicted 1.05 on OOT, 1.03–1.04 recalibrated; 0.96 and 0.94 on early 2018; level relies on a period signal from the 2016 fields |
 | **Main drivers** | DTI, loan amount, accounts opened in 24 months, FICO |
-| **Known limits** | Proxy target, no recession, funded loans only, fairness not directly measured |
+| **Known limits** | Proxy target, no recession, funded loans only, fairness measured only by area proxies; PD understates risk more in high-minority areas |
 | **Explainability** | SHAP values and prototype reason codes; first reason stable for 90% of loans across refits; no legal review |
 | **Human oversight** | Required; override and escalation process still needs to be designed |
 

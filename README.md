@@ -214,9 +214,9 @@ OOT: scorecard observed / predicted 1.19 → 1.01, LightGBM monotone 1.05 → 1.
 F2 remediated and held on early 2018. F1 (scorecard below benchmark), F3 and F4 stay open: the
 LightGBM level did not hold on 2018 (see below). The recalibration method was picked after seeing OOT.
 
-**What we learned after the OOT verdict.** Eight later checks did not change the verdict but narrowed
-it. Six were pre-registered (2018 confirmation, two ablations of the 2016 fields, 2016-only training,
-early repayment, model v2); money and reason codes were exploratory.
+**What we learned after the OOT verdict.** Nine later checks did not change the verdict but narrowed
+it. Seven were pre-registered (2018 confirmation, two ablations of the 2016 fields, 2016-only training,
+early repayment, model v2, ZIP3 fairness proxy); money and reason codes were exploratory.
 - **The ranking lead is real but thin.** On 2017 LightGBM beats the grade by +0.019 Gini (95% CI +0.011
   to +0.028). On early 2018 (42,162 loans) it scored 0.450 against 0.423, with a lower bound of +0.0008. Model v2 features added at most 0.002.
 - **The PD level is not solved.** Boosting's better calibration is a period signal: without the 2016
@@ -224,6 +224,9 @@ early repayment, model v2); money and reason codes were exploratory.
   did not help it on 2018 (0.94), and training on 2016 loans only lost 0.023 Gini without fixing it.
 - **PD covers loans that exit early.** 13.75% of loans are fully repaid within a year. Ranking barely
   changes, but on the other loans observed / predicted is 1.17.
+- **Fairness proxy by ZIP3 and census data.** Approval ratios by inferred race and ethnicity are 0.99 or
+  above, with no added disparity over the grade, but an area proxy is a weak test. PD understates risk
+  more where the minority share is higher: observed / predicted 0.96 to 1.14 across quintiles.
 - **Money and reason codes (exploratory).** At 80% approval a 2015 refit earned $224m against $206m
   for the grade before costs, but rates came from the grade and approving everyone earned most ($237m).
   Reason codes are an unreviewed prototype.

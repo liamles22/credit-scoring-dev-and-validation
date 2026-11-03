@@ -1,0 +1,7 @@
+score,group,approval_rate,white_rate,air,air_lo,air_hi,default_rate_approved,white_default_rate_approved
+LightGBM monotone,Black,0.83605,0.83979,0.99555,0.99289,0.99835,0.02948,0.02855
+LightGBM monotone,Hispanic,0.83513,0.83979,0.99445,0.99131,0.9974,0.03083,0.02855
+Scorecard,Black,0.83393,0.83844,0.99461,0.99058,0.99896,0.03235,0.03112
+Scorecard,Hispanic,0.83634,0.83844,0.99749,0.99268,1.00178,0.03429,0.03112
+Sub-grade,Black,0.83367,0.84037,0.99203,0.98804,0.9958,0.02988,0.02888
+Sub-grade,Hispanic,0.83494,0.84037,0.99354,0.98901,0.99773,0.03213,0.02888

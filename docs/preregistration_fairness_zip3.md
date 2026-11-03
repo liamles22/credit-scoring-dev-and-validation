@@ -89,4 +89,27 @@ state observed / predicted 0.75–1.22). ZIP3 results, linked to census data, ha
 
 ## Changes
 
-None yet.
+None. The script ran once under this plan. Two download attempts failed before any data was received,
+because the new API key was not yet active.
+
+## Results
+
+Recorded on 3 November 2026. 99.96% of OOT loans matched a census ZIP3; every score approved 83.8%.
+
+| Score | AIR, Black (95% CI) | AIR, Hispanic (95% CI) |
+|---|---|---|
+| LightGBM monotone | 0.996 (0.993–0.998) | 0.994 (0.991–0.997) |
+| Scorecard | 0.995 (0.991–0.999) | 0.998 (0.993–1.002) |
+| Sub-grade | 0.992 (0.988–0.996) | 0.994 (0.989–0.998) |
+
+1. **Approval: Green.** Minimum AIR 0.994.
+2. **Calibration: no concern for applicants by the rule, but understated risk.** Observed / predicted for
+   LightGBM rises from 0.96 in the lowest minority-share quintile to 1.14 in the highest (scorecard: 1.07
+   to 1.28). The gap is −0.18 (95% CI −0.25 to −0.09), beyond the 0.10 reported threshold in the other
+   direction.
+3. **Against the grade: no added disparity.** Champion minus sub-grade AIR: +0.004 (−0.000 to +0.008)
+   for Black and +0.001 (−0.003 to +0.005) for Hispanic.
+
+Without a rule: weighted default rate among approved loans 2.95% (Black) and 3.08% (Hispanic) against
+2.85% (White); AIR within income quintiles 0.992–1.000, with no pattern. Tables:
+`reports/tables/fairness_zip3_*.csv`.
